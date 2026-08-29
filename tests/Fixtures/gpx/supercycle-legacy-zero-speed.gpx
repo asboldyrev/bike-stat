@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<gpx xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v2"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     creator="SuperCycle"
+     version="2.0.42, build 727">
+  <trk>
+    <name>Legacy SuperCycle sample</name>
+    <trkseg>
+      <trkpt lat="51.193600" lon="82.243218">
+        <ele>329.45</ele>
+        <time>2024-04-27T12:19:18Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension><gpxtpx:speed>0.0</gpxtpx:speed></gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="51.193552" lon="82.243170">
+        <ele>329.45</ele>
+        <time>2024-04-27T12:19:24Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension><gpxtpx:speed>0.0</gpxtpx:speed></gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="51.193636" lon="82.241939">
+        <ele>340.85</ele>
+        <time>2024-04-27T12:19:30Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension><gpxtpx:speed>0.0</gpxtpx:speed></gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="51.193675" lon="82.241811">
+        <ele>340.85</ele>
+        <time>2024-04-27T12:19:36Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension><gpxtpx:speed>0.0</gpxtpx:speed></gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
