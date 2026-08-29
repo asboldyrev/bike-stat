@@ -28,13 +28,13 @@ Status: completed.
 
 Status: active.
 
-- activities;
-- original activity files with SHA-256;
-- normalized track points;
-- duplicate detection per user;
-- transactional import service;
-- authenticated import API;
-- manual import UI.
+- [x] activities;
+- [x] original activity files with SHA-256;
+- [x] normalized track points;
+- [x] duplicate detection per user;
+- [x] transactional import service;
+- [x] authenticated import API;
+- [x] manual import UI.
 
 ## 3. Activity UI
 
