@@ -1,5 +1,6 @@
 import { h } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { routeDefinitions } from './routes.js';
 
 const page = (title, description) => ({
     setup() {
@@ -11,23 +12,16 @@ const page = (title, description) => ({
     },
 });
 
-export const routes = [
-    {
-        path: '/',
-        name: 'dashboard',
-        component: page('Bike Stat', 'Персональная статистика велопоездок.'),
-    },
-    {
-        path: '/activities',
-        name: 'activities',
-        component: page('Поездки', 'Здесь появится история импортированных поездок.'),
-    },
-    {
-        path: '/import',
-        name: 'import',
-        component: page('Импорт GPX', 'Ручной импорт и Share Target будут использовать один поток.'),
-    },
-];
+const pageContent = {
+    dashboard: ['Bike Stat', 'Персональная статистика велопоездок.'],
+    activities: ['Поездки', 'Здесь появится история импортированных поездок.'],
+    import: ['Импорт GPX', 'Ручной импорт и Share Target будут использовать один поток.'],
+};
+
+export const routes = routeDefinitions.map((route) => ({
+    ...route,
+    component: page(...pageContent[route.name]),
+}));
 
 export const router = createRouter({
     history: createWebHistory(),
