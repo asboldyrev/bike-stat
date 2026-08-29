@@ -40,7 +40,7 @@ final class ImportGpxActivityTest extends TestCase
 
         self::assertDatabaseCount('activities', 1);
         self::assertDatabaseCount('activity_files', 1);
-        self::assertDatabaseCount('activity_track_points', 2);
+        self::assertDatabaseCount('activity_track_points', 4);
 
         $file = ActivityFile::query()->sole();
 
@@ -59,7 +59,7 @@ final class ImportGpxActivityTest extends TestCase
         self::assertSame(0, $firstPoint->sequence);
         self::assertSame(66, $firstPoint->cadence);
         self::assertSame(4.1, $firstPoint->source_distance_meters);
-        self::assertEqualsWithDelta(1.7610738255033558, $firstPoint->source_speed_mps, 0.0000001);
+        self::assertSame(2.0, $firstPoint->source_speed_mps);
         self::assertSame(10.0, $firstPoint->course_degrees);
     }
 
