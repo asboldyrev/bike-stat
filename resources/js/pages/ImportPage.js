@@ -88,7 +88,7 @@ export const ImportPage = {
 
             return h('section', {
                 class: entries.value.length > 0
-                    ? 'space-y-5 pb-28 sm:space-y-6 sm:pb-24'
+                    ? 'space-y-5 pb-44 sm:space-y-6 sm:pb-24'
                     : 'space-y-5 sm:space-y-6',
             }, [
                 h('div', { class: 'space-y-2' }, [
@@ -173,7 +173,7 @@ export const ImportPage = {
                 ]),
                 entries.value.length > 0
                     ? h('div', {
-                        class: 'fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:px-4',
+                        class: 'fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 border-t bg-white/95 px-3 pb-3 pt-3 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-0 sm:px-4',
                     }, [
                         h('div', {
                             class: 'mx-auto flex max-w-5xl items-center gap-3',
