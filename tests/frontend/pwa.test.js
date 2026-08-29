@@ -5,7 +5,6 @@ import {
     activateWaitingServiceWorker,
     canUseServiceWorker,
     registerPwa,
-    serviceWorkerUrl,
 } from '../../resources/js/pwa.js';
 
 test('service worker support detection is defensive', () => {
@@ -13,14 +12,30 @@ test('service worker support detection is defensive', () => {
     assert.equal(canUseServiceWorker({}), false);
 });
 
-test('service worker URL is versioned by the application build', () => {
-    assert.equal(
-        serviceWorkerUrl('/build/assets/app-abc123.js'),
-        '/sw.js?v=%2Fbuild%2Fassets%2Fapp-abc123.js',
-    );
+test('service worker uses a stable URL and bypasses HTTP cache for update checks', async () => {
+    const registration = {
+        waiting: null,
+        addEventListener() {},
+    };
+
+    await registerPwa({
+        navigatorLike: {
+            serviceWorker: {
+                controller: {},
+                async register(path, options) {
+                    assert.equal(path, '/sw.js');
+                    assert.equal(options.scope, '/');
+                    assert.equal(options.updateViaCache, 'none');
+
+                    return registration;
+                },
+                addEventListener() {},
+            },
+        },
+    });
 });
 
-test('existing waiting worker is reported as an available update', async () => {
+test('waiting worker is reported only when the page already has a controller', async () => {
     const registration = {
         waiting: { postMessage() {} },
         addEventListener() {},
@@ -31,18 +46,12 @@ test('existing waiting worker is reported as an available update', async () => {
         navigatorLike: {
             serviceWorker: {
                 controller: {},
-                async register(path, options) {
-                    assert.equal(
-                        path,
-                        '/sw.js?v=%2Fbuild%2Fassets%2Fapp-test.js',
-                    );
-                    assert.equal(options.scope, '/');
+                async register() {
                     return registration;
                 },
                 addEventListener() {},
             },
         },
-        buildVersion: '/build/assets/app-test.js',
         onUpdateAvailable(value) {
             updateRegistration = value;
         },
@@ -51,10 +60,35 @@ test('existing waiting worker is reported as an available update', async () => {
     assert.equal(updateRegistration, registration);
 });
 
-test('waiting service worker can be activated explicitly', () => {
+test('waiting worker is not reported during uncontrolled first install', async () => {
+    const registration = {
+        waiting: { postMessage() {} },
+        addEventListener() {},
+    };
+    let updateReported = false;
+
+    await registerPwa({
+        navigatorLike: {
+            serviceWorker: {
+                controller: null,
+                async register() {
+                    return registration;
+                },
+                addEventListener() {},
+            },
+        },
+        onUpdateAvailable() {
+            updateReported = true;
+        },
+    });
+
+    assert.equal(updateReported, false);
+});
+
+test('waiting service worker can be activated explicitly once', () => {
     let message = null;
 
-    activateWaitingServiceWorker({
+    const activated = activateWaitingServiceWorker({
         waiting: {
             postMessage(value) {
                 message = value;
@@ -62,5 +96,7 @@ test('waiting service worker can be activated explicitly', () => {
         },
     });
 
+    assert.equal(activated, true);
     assert.deepEqual(message, { type: 'SKIP_WAITING' });
+    assert.equal(activateWaitingServiceWorker({ waiting: null }), false);
 });
