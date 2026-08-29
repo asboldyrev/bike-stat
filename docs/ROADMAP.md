@@ -67,13 +67,13 @@ Status: active.
 
 ## 5. PWA baseline
 
-Status: planned.
+Status: active.
 
-- manifest/icons;
-- service worker;
-- installability;
-- app-shell offline start;
-- controlled update flow.
+- [x] manifest and install icons;
+- [x] service worker;
+- [ ] installability verified on secure-origin Android/Chromium;
+- [x] app-shell offline start;
+- [x] controlled update flow.
 
 ## 6. Android Share Target
 

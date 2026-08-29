@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Activity UI — mobile-first navigation and device pairing/settings.
+PWA baseline — installability, app-shell offline start and controlled updates.
 
 ## Completed stages
 
@@ -47,40 +47,74 @@ Merged into `dev`:
 - elevation/reliable source-speed charts;
 - mobile-first activity detail baseline.
 
-## Current mobile navigation/settings slice
+### Mobile navigation/pairing
 
-The active branch adds a phone-first application shell and frontend pairing flow.
+Merged into `dev`:
 
-Navigation:
+- fixed bottom mobile navigation;
+- touch-safe page shell;
+- settings pairing-link flow;
+- second-device pairing redemption without accidental bootstrap.
 
-- mobile devices use a fixed bottom navigation bar;
-- primary sections are Overview, Activities, Import and Settings;
-- activity detail keeps Activities highlighted as the active primary section;
-- safe-area padding is applied for phones with bottom insets;
-- desktop keeps a compact header navigation as progressive enhancement;
-- content receives bottom padding so fixed mobile navigation does not cover page content;
-- page-specific fixed action bars (for example bulk import) must sit above the primary mobile navigation rather than sharing the same bottom offset, and the page must reserve enough space for both layers.
+## Current PWA baseline slice
 
-Settings/pairing:
+The active branch adds installable application metadata and a dependency-free service worker.
 
-- `/settings` can issue the existing two-minute one-time pairing link;
-- the link can be copied from the phone, including an HTTP-compatible copy fallback;
-- `/pair#token=...` redeems the pairing credential on the new device;
-- the redeemed device receives its own independent device token and stores it in localStorage;
-- successful pairing routes to Activities;
-- pairing token remains in the URL fragment and is removed from browser history immediately after successful redemption;
-- every `/pair` route skips normal first-run anonymous bootstrap, preventing creation of an orphan anonymous account before pairing or when a pairing link is malformed.
+Manifest/installability:
 
-Current settings UI intentionally does not yet list/revoke named devices; backend revocation support exists at the credential level and a device-management API/UI can be added as a follow-up.
+- `/manifest.webmanifest` defines Bike Stat name, start URL, standalone display, colors and language;
+- PNG install icons are provided at 192×192 and 512×512;
+- a separate 512×512 maskable icon is provided;
+- SVG icon remains available for scalable browser/favicon use;
+- the application HTML links the manifest and PWA metadata.
+
+Service worker:
+
+- registered only in production builds;
+- service worker is registered at a stable `/sw.js` URL with `updateViaCache: none`, so browser update checks compare the actual worker script rather than treating every Vite bundle hash as a new service worker;
+- install caches the root app shell, manifest/icons and current production Vite assets from `/build/manifest.json`;
+- same-origin Vite assets/icons are cache-first;
+- SPA navigation is network-first with cached root shell fallback;
+- API responses and OpenStreetMap tiles are intentionally not offline-cached in the MVP baseline.
+
+Controlled update behavior:
+
+- a newly installed service worker waits instead of forcing an immediate reload;
+- the app displays a visible “new version available” action;
+- only explicit user action sends `SKIP_WAITING`;
+- the update prompt is hidden immediately after confirmation;
+- reload permission is consumed on the first matching `controllerchange`, preventing reload loops;
+- first service-worker installation does not force an application reload.
+
+Offline scope:
+
+- an already-initialized device can start the Vue application shell without network after the shell has been cached;
+- current activity/API data still requires network and should show normal request errors when offline;
+- first-ever anonymous bootstrap cannot complete offline;
+- map tiles are not part of the current offline shell.
+
+## Manual acceptance requirement
+
+PWA/service-worker behavior must be tested on a secure origin. Production/deployed acceptance requires HTTPS (localhost/loopback are the local-development exception).
+
+Before declaring this roadmap stage complete, manually verify on Android/Chromium:
+
+1. manifest is recognized and Bike Stat is offered for installation;
+2. installed app launches in standalone mode;
+3. after one online launch, app shell opens with network disabled;
+4. a deployment that changes `sw.js` produces the controlled update prompt;
+5. pressing Update activates the waiting worker and causes exactly one reload;
+6. after reload the same update prompt does not immediately reappear.
 
 ## Immediate next work
 
-1. Verify and merge mobile navigation/settings/pairing.
-2. Continue map/chart interaction improvements and optional telemetry charts.
-3. Add PWA manifest/service-worker/installability baseline.
-4. Connect Android Share Target to the existing authenticated import flow.
-5. Build dashboard/aggregate statistics.
+1. Verify/merge PWA baseline and complete secure-origin Android acceptance.
+2. Connect Android Web Share Target to the existing authenticated GPX import flow.
+3. Continue map/chart interaction improvements and optional telemetry charts.
+4. Build dashboard/aggregate statistics.
+5. Continue mobile-first refinement based on real phone use.
 
 ## Current blockers
 
-None.
+Secure-origin manual acceptance is required for PWA installability/service-worker verification.
+
