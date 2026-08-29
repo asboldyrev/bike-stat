@@ -14,7 +14,7 @@ php artisan test
 
 ## Frontend
 
-Frontend behavioral tests live under `tests/frontend` and use Vitest, Vue Test Utils and jsdom.
+The foundation uses Node's built-in test runner for dependency-free frontend smoke coverage under `tests/frontend`.
 
 Run:
 
@@ -22,6 +22,8 @@ Run:
 npm test
 npm run test:watch
 ```
+
+When component behavior, mutation flows and stateful UI become substantial, introduce a Vue-aware regression layer (expected: Vitest + Vue Test Utils) and update this policy in the same change.
 
 Production build is a separate gate:
 
@@ -49,4 +51,4 @@ GPX domain work should use repository fixtures under a dedicated test fixture di
 
 ## CI
 
-CI should run backend tests plus frontend tests/build for pushes and PRs.
+CI runs backend tests plus frontend tests/build for pushes and PRs.
