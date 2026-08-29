@@ -167,7 +167,7 @@ Bike Stat uses a small first-party service worker rather than an additional PWA 
 
 The web app manifest is static under `public/manifest.webmanifest` and includes raster 192/512 install icons plus a maskable 512 icon.
 
-The production application registers `/sw.js` with a version query derived from the current Vite application bundle URL. This couples the service-worker registration version to each frontend build without embedding deployment timestamps in source code.
+The production application registers a stable `/sw.js` URL with `updateViaCache: none`. The service-worker lifecycle therefore changes only when the worker script itself changes, instead of treating every Vite bundle hash as a distinct worker. Normal frontend deployments are picked up through network-first HTML plus hashed Vite assets; cache misses fetch/cache the new asset URLs as they are requested.
 
 During install the service worker caches:
 
@@ -182,7 +182,7 @@ Caching policy:
 - API requests: network only;
 - third-party OpenStreetMap tiles/fonts: outside the current offline cache.
 
-Updates are controlled. A new worker remains waiting until the Vue shell explicitly sends `SKIP_WAITING` after user confirmation. This avoids forcing reloads during imports or other active interaction.
+Updates are controlled. A genuinely changed worker remains waiting until the Vue shell explicitly sends `SKIP_WAITING` after user confirmation. The prompt is cleared immediately on confirmation and controller-change reload permission is one-shot, preventing repeated prompt/reload loops. This avoids forcing reloads during imports or other active interaction.
 
 This baseline provides offline application-shell startup, not offline activity data. Full offline activity caching/import/synchronization remains post-MVP.
 
