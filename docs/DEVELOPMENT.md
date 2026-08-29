@@ -61,6 +61,21 @@ CLI values may differ from PHP-FPM/Apache values, so confirm the configuration u
 
 Reverse proxies may have their own body-size limit as well (for example Nginx `client_max_body_size`), which must also be at least the application upload limit.
 
+## Frontend product constraints
+
+Bike Stat is mobile-first.
+
+For every user-facing MVP change:
+
+- design the narrow-screen/touch interaction first;
+- avoid layouts that only become usable at desktop widths;
+- keep primary actions reachable and obvious on phones;
+- use touch-friendly controls and spacing;
+- verify dense metric/card layouts do not overflow or become unreadable on narrow screens;
+- desktop presentation should enhance, not redefine, the interaction model.
+
+Bulk GPX import must be implemented as a first-class MVP workflow rather than a desktop-only convenience. It should support multiple selected files, independent per-file results, and partial success.
+
 ## API/security
 
 - keep public bootstrap/pairing surfaces intentionally narrow and rate limited;

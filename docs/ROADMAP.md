@@ -26,7 +26,7 @@ Status: completed.
 
 ## 2. Persistence and manual import
 
-Status: completed.
+Status: active.
 
 - [x] activities;
 - [x] original activity files with SHA-256;
@@ -34,16 +34,22 @@ Status: completed.
 - [x] duplicate detection per user;
 - [x] transactional import service;
 - [x] authenticated import API;
-- [x] manual import UI.
+- [x] single-file manual import UI;
+- [ ] bulk GPX selection/import for initial history loading;
+- [ ] per-file progress/result reporting for bulk import;
+- [ ] bulk import preserves per-user duplicate detection and allows partial success.
 
 ## 3. Activity UI
 
 Status: active.
 
+MVP UI is mobile-first. Every screen in this stage and later user-facing MVP stages must be usable on narrow touch screens before desktop enhancement is considered complete.
+
 - [x] activities list;
 - [x] activity details;
 - [x] basic metrics;
-- [x] robust loading/error/empty states.
+- [x] robust loading/error/empty states;
+- [ ] mobile-first refinement of navigation, cards, spacing, touch targets and dense metric layouts.
 
 ## 4. Map and charts
 
