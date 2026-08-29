@@ -52,7 +52,7 @@ final class ActivityApiTest extends TestCase
             ->assertJsonPath('activity.id', $activity->id)
             ->assertJsonPath('activity.name', 'SuperCycle sample')
             ->assertJsonPath('activity.file.original_name', 'ride.gpx')
-            ->assertJsonCount(2, 'activity.track_points')
+            ->assertJsonCount(4, 'activity.track_points')
             ->assertJsonPath('activity.track_points.0.cadence', 66);
     }
 
