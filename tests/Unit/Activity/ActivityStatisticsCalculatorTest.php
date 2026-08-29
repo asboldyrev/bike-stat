@@ -33,6 +33,19 @@ final class ActivityStatisticsCalculatorTest extends TestCase
     }
 
     #[Test]
+    public function it_filters_an_isolated_gps_spike_when_source_speed_is_not_usable(): void
+    {
+        $gpx = (new GpxParser())->parse(
+            file_get_contents(__DIR__.'/../../Fixtures/gpx/supercycle-legacy-zero-speed.gpx'),
+        );
+
+        $statistics = (new ActivityStatisticsCalculator())->calculate($gpx);
+
+        self::assertNotNull($statistics->maxSpeedMetersPerSecond);
+        self::assertLessThan(10 / 3.6, $statistics->maxSpeedMetersPerSecond);
+    }
+
+    #[Test]
     public function it_prefers_complete_source_telemetry_over_one_second_gps_deltas(): void
     {
         $gpx = (new GpxParser())->parse(
