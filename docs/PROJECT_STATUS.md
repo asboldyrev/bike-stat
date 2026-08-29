@@ -71,7 +71,7 @@ Manifest/installability:
 Service worker:
 
 - registered only in production builds;
-- service-worker script URL is versioned by the current Vite build URL, so application releases trigger update detection even when `public/sw.js` source itself is unchanged;
+- service worker is registered at a stable `/sw.js` URL with `updateViaCache: none`, so browser update checks compare the actual worker script rather than treating every Vite bundle hash as a new service worker;
 - install caches the root app shell, manifest/icons and current production Vite assets from `/build/manifest.json`;
 - same-origin Vite assets/icons are cache-first;
 - SPA navigation is network-first with cached root shell fallback;
@@ -82,7 +82,8 @@ Controlled update behavior:
 - a newly installed service worker waits instead of forcing an immediate reload;
 - the app displays a visible “new version available” action;
 - only explicit user action sends `SKIP_WAITING`;
-- reload occurs after controller change caused by that explicit update;
+- the update prompt is hidden immediately after confirmation;
+- reload permission is consumed on the first matching `controllerchange`, preventing reload loops;
 - first service-worker installation does not force an application reload.
 
 Offline scope:
@@ -101,8 +102,9 @@ Before declaring this roadmap stage complete, manually verify on Android/Chromiu
 1. manifest is recognized and Bike Stat is offered for installation;
 2. installed app launches in standalone mode;
 3. after one online launch, app shell opens with network disabled;
-4. a subsequent deployment produces the controlled update prompt;
-5. pressing Update activates the waiting worker and reloads into the new build.
+4. a deployment that changes `sw.js` produces the controlled update prompt;
+5. pressing Update activates the waiting worker and causes exactly one reload;
+6. after reload the same update prompt does not immediately reappear.
 
 ## Immediate next work
 
