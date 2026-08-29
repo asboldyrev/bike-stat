@@ -67,7 +67,9 @@ The active branch changes statistic precedence when a track contains complete, m
 4. average speed is derived from source distance / segment moving time;
 5. elapsed time remains first-to-last GPX point duration because no longer duration is encoded in the file.
 
-Generic GPX files without complete source telemetry continue to use the existing Haversine/movement-threshold fallback.
+Generic GPX files without complete source telemetry continue to use Haversine/movement-threshold fallback. Fallback maximum speed now rejects isolated coordinate-speed spikes that are at least 3× both-neighbor scale and at least 5 m/s above the faster neighbor.
+
+A legacy SuperCycle 2.0.42 export was inspected: it samples every 6 seconds and writes `speed=0` for every point. One early GPS position correction jumps about 86 m in a single 6-second interval, which previously appeared as ~51.8 km/h despite adjacent intervals being only a few km/h. That pattern is now treated as an isolated GPS correction, not a ride maximum.
 
 Elevation gain/loss remains approximate and is not changed by this slice. The detail UI now shows min/max elevation and elevation range separately from accumulated gain/loss.
 
