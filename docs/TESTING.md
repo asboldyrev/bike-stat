@@ -41,6 +41,9 @@ Add/update tests when practical for:
 - pairing expiration/single-use semantics;
 - critical frontend import flows, including multi-file selection/import and partial failure;
 - mobile-first interaction/layout regressions for primary MVP flows;
+- route visualization preserving GPX segment boundaries;
+- chart-series source-distance fallback/downsampling behavior;
+- zero-only source speed remaining unavailable rather than misleading;
 - state preservation on failed mutations;
 - shared interactive controls.
 
