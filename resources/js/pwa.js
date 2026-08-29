@@ -2,13 +2,8 @@ export function canUseServiceWorker(navigatorLike = navigator) {
     return 'serviceWorker' in navigatorLike;
 }
 
-export function serviceWorkerUrl(buildVersion) {
-    return `/sw.js?v=${encodeURIComponent(buildVersion)}`;
-}
-
 export async function registerPwa({
     navigatorLike = navigator,
-    buildVersion = import.meta.url,
     onUpdateAvailable = () => {},
     onControllerChange = () => {},
 } = {}) {
@@ -16,12 +11,12 @@ export async function registerPwa({
         return null;
     }
 
-    const registration = await navigatorLike.serviceWorker.register(
-        serviceWorkerUrl(buildVersion),
-        { scope: '/' },
-    );
+    const registration = await navigatorLike.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none',
+    });
 
-    if (registration.waiting) {
+    if (navigatorLike.serviceWorker.controller && registration.waiting) {
         onUpdateAvailable(registration);
     }
 
@@ -36,6 +31,7 @@ export async function registerPwa({
             if (
                 worker.state === 'installed'
                 && navigatorLike.serviceWorker.controller
+                && registration.waiting
             ) {
                 onUpdateAvailable(registration);
             }
@@ -50,7 +46,15 @@ export async function registerPwa({
 }
 
 export function activateWaitingServiceWorker(registration) {
-    registration?.waiting?.postMessage({
+    const worker = registration?.waiting;
+
+    if (!worker) {
+        return false;
+    }
+
+    worker.postMessage({
         type: 'SKIP_WAITING',
     });
+
+    return true;
 }
