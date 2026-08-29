@@ -62,7 +62,7 @@ final class ImportActivityApiTest extends TestCase
             ]);
 
         self::assertSame(1, Activity::query()->count());
-        self::assertSame(2, ActivityTrackPoint::query()->count());
+        self::assertSame(4, ActivityTrackPoint::query()->count());
 
         $activity = Activity::query()->with('file')->sole();
 
