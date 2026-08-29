@@ -113,6 +113,17 @@ Persistence is split into:
 
 Original-file storage is written before the database transaction and explicitly removed if database persistence fails. Database child rows use foreign-key cascade deletion. Physical file deletion on activity removal remains an explicit application concern rather than an Eloquent model event.
 
+## Activity read boundary
+
+Authenticated activity reads are owner-scoped at query time.
+
+- `GET /api/activities` provides a paginated summary list;
+- `GET /api/activities/{id}` returns detail data only when the activity belongs to the authenticated anonymous user;
+- foreign activity IDs resolve as 404;
+- the current detail representation includes original-file metadata plus normalized track points for the upcoming map/chart layer.
+
+The Vue routes `/activities` and `/activities/:id` consume this boundary. Activity persistence remains server-authoritative; the frontend does not reconstruct statistics from raw GPX.
+
 ## Future/considered
 
-Anonymous device authentication, protected HTTP import, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
+Map/chart payload shaping or track-point downsampling, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
