@@ -26,7 +26,7 @@ Status: completed.
 
 ## 2. Persistence and manual import
 
-Status: active.
+Status: completed.
 
 - [x] activities;
 - [x] original activity files with SHA-256;
@@ -35,9 +35,9 @@ Status: active.
 - [x] transactional import service;
 - [x] authenticated import API;
 - [x] single-file manual import UI;
-- [ ] bulk GPX selection/import for initial history loading;
-- [ ] per-file progress/result reporting for bulk import;
-- [ ] bulk import preserves per-user duplicate detection and allows partial success.
+- [x] bulk GPX selection/import for initial history loading;
+- [x] per-file progress/result reporting for bulk import;
+- [x] bulk import preserves per-user duplicate detection and allows partial success.
 
 ## 3. Activity UI
 

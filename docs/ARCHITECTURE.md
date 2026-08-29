@@ -61,7 +61,9 @@ The browser application bootstraps an anonymous device only when no token exists
 
 The import endpoint validates upload size and `.gpx` filename, then delegates all parsing, duplicate detection and persistence to `ImportGpxActivity`. MIME is recorded but not used as the sole acceptance criterion because GPX exporters/share targets may use XML or generic MIME types.
 
-Manual import and the future Share Target import converge after obtaining a browser `File` object.
+Manual import, bulk import and the future Share Target import converge after obtaining browser `File` objects.
+
+Bulk import is client-orchestrated: the frontend validates the selected set and sequentially calls the existing authenticated single-file `POST /api/activities/import` endpoint. There is intentionally no separate batch persistence endpoint. This keeps each GPX transaction independent, preserves per-file duplicate detection/partial success, and avoids coupling total history size to one multipart request/body-size limit.
 
 Future Share Target flow:
 
