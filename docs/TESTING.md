@@ -39,7 +39,8 @@ Add/update tests when practical for:
 - import and duplicate behavior;
 - anonymous/device authentication;
 - pairing expiration/single-use semantics;
-- critical frontend import flows;
+- critical frontend import flows, including multi-file selection/import and partial failure;
+- mobile-first interaction/layout regressions for primary MVP flows;
 - state preservation on failed mutations;
 - shared interactive controls.
 
