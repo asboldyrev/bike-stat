@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Activity UI — list and detail browsing.
+Activity UI — statistic calibration from real SuperCycle telemetry.
 
 ## Completed stages
 
@@ -37,31 +37,56 @@ Merged into `dev`:
 - authenticated manual GPX import API;
 - browser bootstrap/token storage and manual import UI.
 
-## Current activity UI slice
+### Activity list/detail
 
-Backend:
+Merged into `dev`:
 
-- `GET /api/activities` returns the authenticated user's activities, newest first, paginated 20 per page;
-- `GET /api/activities/{id}` returns one owned activity with original-file metadata and normalized track points;
-- ownership is enforced in the query itself;
-- another user's activity ID is returned as 404 rather than exposing its existence.
+- owner-scoped activity list/detail API;
+- ride history and detail pages;
+- basic metrics and source-file metadata.
 
-Frontend:
+## Real SuperCycle statistics calibration
 
-- `/activities` now lists imported rides with date, distance, moving time, average/max speed and elevation gain;
-- `/activities/:id` shows the basic activity metrics, original source-file information and track-point count;
-- successful manual import links directly to the resulting activity;
-- empty/loading/error states are present.
+A representative real SuperCycle ride was compared against persisted Bike Stat values.
 
-The detail API currently returns all normalized track points. This is acceptable for the present personal-use baseline and enables the upcoming map/chart stage, but payload shaping/downsampling may be introduced when visualization behavior is implemented.
+Observed:
+
+- Bike Stat Haversine distance: about 20.761 km;
+- SuperCycle cumulative source distance: 20.910 km;
+- GPX first-to-last point elapsed time: about 1:38:08;
+- sum of GPX segment spans: about 1:22:59;
+- Bike Stat GPS-delta peak speed: about 72.5 km/h caused by a single coordinate jump;
+- SuperCycle recorded peak speed: about 51.85 km/h;
+- elevation min/max range: about 187 m.
+
+The active branch changes statistic precedence when a track contains complete, monotonic cumulative source distance plus source speed for every point:
+
+1. distance uses the final cumulative source distance;
+2. moving time uses the sum of per-`trkseg` time spans;
+3. max speed uses the maximum source-device speed;
+4. average speed is derived from source distance / segment moving time;
+5. elapsed time remains first-to-last GPX point duration because no longer duration is encoded in the file.
+
+Generic GPX files without complete source telemetry continue to use Haversine/movement-threshold fallback. Fallback maximum speed now rejects isolated coordinate-speed spikes that are at least 3× both-neighbor scale and at least 5 m/s above the faster neighbor.
+
+A legacy SuperCycle 2.0.42 export was inspected: it samples every 6 seconds and writes `speed=0` for every point. One early GPS position correction jumps about 86 m in a single 6-second interval, which previously appeared as ~51.8 km/h despite adjacent intervals being only a few km/h. That pattern is now treated as an isolated GPS correction, not a ride maximum.
+
+Elevation gain/loss remains approximate and is not changed by this slice. The detail UI now shows min/max elevation and elevation range separately from accumulated gain/loss.
+
+Existing stored activities can be recalculated from preserved source GPX with:
+
+```bash
+php artisan activities:recalculate
+php artisan activities:recalculate <activity-id>
+```
 
 ## Immediate next work
 
-1. Verify and merge activity list/detail browsing.
-2. Add route map and elevation/speed visualization.
-3. Add pairing/settings frontend flow for moving the anonymous identity to another device.
-4. Add PWA manifest/service worker baseline.
-5. Connect Web Share Target to the existing import flow.
+1. Verify and merge source-telemetry statistic calibration.
+2. Recalculate existing imported rides.
+3. Add route map and elevation/speed visualization.
+4. Add pairing/settings frontend flow.
+5. Add PWA manifest/service worker baseline and Share Target integration.
 
 ## Current blockers
 

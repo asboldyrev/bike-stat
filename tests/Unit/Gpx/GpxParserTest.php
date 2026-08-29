@@ -41,7 +41,7 @@ final class GpxParserTest extends TestCase
 
         self::assertSame('SuperCycle sample', $gpx->name);
         self::assertSame(4.1, $point->sourceDistanceMeters);
-        self::assertEqualsWithDelta(1.7610738255033558, $point->sourceSpeedMetersPerSecond, 0.0000001);
+        self::assertSame(2.0, $point->sourceSpeedMetersPerSecond);
         self::assertSame(10.0, $point->courseDegrees);
         self::assertSame(66, $point->cadence);
     }

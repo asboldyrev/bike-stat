@@ -12,25 +12,51 @@
     <trkseg>
       <trkpt lat="52.0000000" lon="5.0000000">
         <ele>100.0</ele>
-        <time>2026-08-28T11:25:00.965Z</time>
+        <time>2026-08-28T11:25:00Z</time>
         <extensions>
           <distance>4.1</distance>
           <gpxtpx:TrackPointExtension>
             <gpxtpx:cad>66</gpxtpx:cad>
-            <gpxtpx:speed>1.7610738255033558</gpxtpx:speed>
+            <gpxtpx:speed>2.0</gpxtpx:speed>
             <gpxtpx:course>10.0</gpxtpx:course>
           </gpxtpx:TrackPointExtension>
         </extensions>
       </trkpt>
-      <trkpt lat="52.0000100" lon="5.0000100">
-        <ele>100.2</ele>
-        <time>2026-08-28T11:25:01.961Z</time>
+      <trkpt lat="52.0001800" lon="5.0000000">
+        <ele>101.0</ele>
+        <time>2026-08-28T11:25:01Z</time>
         <extensions>
-          <distance>6.15</distance>
+          <distance>10.0</distance>
           <gpxtpx:TrackPointExtension>
             <gpxtpx:cad>67</gpxtpx:cad>
-            <gpxtpx:speed>2.24034151547492</gpxtpx:speed>
+            <gpxtpx:speed>4.0</gpxtpx:speed>
             <gpxtpx:course>11.0</gpxtpx:course>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+    </trkseg>
+    <trkseg>
+      <trkpt lat="52.0001900" lon="5.0000000">
+        <ele>101.0</ele>
+        <time>2026-08-28T11:25:10Z</time>
+        <extensions>
+          <distance>10.0</distance>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>0</gpxtpx:cad>
+            <gpxtpx:speed>0.0</gpxtpx:speed>
+            <gpxtpx:course>11.0</gpxtpx:course>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="52.0002000" lon="5.0000100">
+        <ele>102.0</ele>
+        <time>2026-08-28T11:25:11Z</time>
+        <extensions>
+          <distance>16.0</distance>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>70</gpxtpx:cad>
+            <gpxtpx:speed>5.0</gpxtpx:speed>
+            <gpxtpx:course>12.0</gpxtpx:course>
           </gpxtpx:TrackPointExtension>
         </extensions>
       </trkpt>

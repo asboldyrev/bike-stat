@@ -11,15 +11,16 @@ final class ActivityStatisticsCalculator
     public function __construct(
         private readonly DistanceCalculator $distanceCalculator = new DistanceCalculator(),
         private readonly ElevationCalculator $elevationCalculator = new ElevationCalculator(),
+        private readonly MaximumSpeedCalculator $maximumSpeedCalculator = new MaximumSpeedCalculator(),
         private readonly float $movingThresholdMetersPerSecond = 1.0,
     ) {
     }
 
     public function calculate(ParsedGpx $gpx): ActivityStatistics
     {
-        $distance = 0.0;
-        $movingTime = 0;
-        $maxSpeed = null;
+        $fallbackDistance = 0.0;
+        $fallbackMovingTime = 0;
+        $fallbackMaxSpeed = null;
         $firstTime = null;
         $lastTime = null;
 
@@ -38,7 +39,7 @@ final class ActivityStatisticsCalculator
                 $current = $points[$i];
 
                 $segmentDistance = $this->distanceCalculator->between($previous, $current);
-                $distance += $segmentDistance;
+                $fallbackDistance += $segmentDistance;
 
                 $seconds = $this->secondsBetween($previous, $current);
 
@@ -47,11 +48,18 @@ final class ActivityStatisticsCalculator
                 }
 
                 $speed = $segmentDistance / $seconds;
-                $maxSpeed = $maxSpeed === null ? $speed : max($maxSpeed, $speed);
 
                 if ($speed >= $this->movingThresholdMetersPerSecond) {
-                    $movingTime += $seconds;
+                    $fallbackMovingTime += $seconds;
                 }
+            }
+
+            $segmentMaxSpeed = $this->maximumSpeedCalculator->fromCoordinates($points);
+
+            if ($segmentMaxSpeed !== null) {
+                $fallbackMaxSpeed = $fallbackMaxSpeed === null
+                    ? $segmentMaxSpeed
+                    : max($fallbackMaxSpeed, $segmentMaxSpeed);
             }
         }
 
@@ -59,7 +67,13 @@ final class ActivityStatisticsCalculator
             ? max(0, $lastTime->getTimestamp() - $firstTime->getTimestamp())
             : null;
 
+        $sourceMetrics = $this->completeSourceMetrics($gpx);
+
+        $distance = $sourceMetrics['distance'] ?? $fallbackDistance;
+        $movingTime = $sourceMetrics['moving_time'] ?? $fallbackMovingTime;
+        $maxSpeed = $sourceMetrics['max_speed'] ?? $fallbackMaxSpeed;
         $averageSpeed = $movingTime > 0 ? $distance / $movingTime : null;
+
         $elevation = $this->elevationCalculator->calculate($gpx);
 
         return new ActivityStatistics(
@@ -73,6 +87,75 @@ final class ActivityStatisticsCalculator
             minimumElevationMeters: $elevation->minimumMeters,
             maximumElevationMeters: $elevation->maximumMeters,
         );
+    }
+
+    /**
+     * Complete cumulative distance + point speed data is treated as source-device
+     * telemetry. When present for the whole track, it is more reliable than
+     * one-second GPS coordinate deltas for cycling distance and peak speed.
+     *
+     * @return array{distance: float, moving_time: int, max_speed: float}|null
+     */
+    private function completeSourceMetrics(ParsedGpx $gpx): ?array
+    {
+        $points = $gpx->points();
+
+        if ($points === []) {
+            return null;
+        }
+
+        $previousDistance = null;
+        $lastDistance = null;
+        $maxSpeed = null;
+
+        foreach ($points as $point) {
+            if (
+                $point->sourceDistanceMeters === null
+                || $point->sourceSpeedMetersPerSecond === null
+            ) {
+                return null;
+            }
+
+            if (
+                $previousDistance !== null
+                && $point->sourceDistanceMeters < $previousDistance
+            ) {
+                return null;
+            }
+
+            $previousDistance = $point->sourceDistanceMeters;
+            $lastDistance = $point->sourceDistanceMeters;
+            $maxSpeed = $maxSpeed === null
+                ? $point->sourceSpeedMetersPerSecond
+                : max($maxSpeed, $point->sourceSpeedMetersPerSecond);
+        }
+
+        if ($lastDistance === null || $maxSpeed === null || $maxSpeed <= 0.0) {
+            return null;
+        }
+
+        $movingTime = 0;
+
+        foreach ($gpx->segments as $segment) {
+            $first = $segment->points[0] ?? null;
+            $last = $segment->points[count($segment->points) - 1] ?? null;
+
+            if ($first === null || $last === null) {
+                continue;
+            }
+
+            $seconds = $this->secondsBetween($first, $last);
+
+            if ($seconds !== null && $seconds > 0) {
+                $movingTime += $seconds;
+            }
+        }
+
+        return [
+            'distance' => $lastDistance,
+            'moving_time' => $movingTime,
+            'max_speed' => $maxSpeed,
+        ];
     }
 
     private function secondsBetween(TrackPoint $from, TrackPoint $to): ?int
