@@ -59,12 +59,28 @@ Android Share
 
 Service workers do not depend on the device bearer token for GPX ingestion.
 
+## GPX domain
+
+GPX parsing is separated from persistence.
+
+Current boundaries:
+
+- `App\Infrastructure\Gpx\GpxParser` validates/parses XML into domain values;
+- `TrackPoint`, `TrackSegment` and `ParsedGpx` are persistence-independent domain objects;
+- common track-point extensions are read by XML local-name so namespace prefixes do not become application contracts;
+- `DistanceCalculator` uses the Haversine model;
+- `ActivityStatisticsCalculator` derives baseline distance/time/speed/elevation statistics from parsed segments.
+
+DTD/entity declarations are rejected and XML loading uses `LIBXML_NONET`.
+
+The current moving-speed threshold is 1.0 m/s. Current elevation gain/loss is raw consecutive-point accumulation and is expected to gain an explicit filtering/smoothing policy after calibration against real GPX data.
+
 ## GPX data ownership
 
-The original GPX file is source data and is preserved. Activity rows, normalized track points and computed metrics are derived data.
+The original GPX file is source data and will be preserved when persistence is introduced. Activity rows, normalized track points and computed metrics are derived data.
 
-Duplicate detection is based on a content hash scoped to the owning user.
+Duplicate detection will be based on a content hash scoped to the owning user.
 
 ## Future/considered
 
-Detailed GPX table schema, extension adapters, statistic algorithms and offline synchronization will be documented when implemented.
+Detailed GPX table schema, vendor-specific extension adapters, calibrated elevation/movement algorithms and offline synchronization will be documented when implemented.
