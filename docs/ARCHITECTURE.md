@@ -45,9 +45,25 @@ The frontend may keep its device credential in browser storage for the MVP. This
 
 ## GPX import boundary
 
-Manual import and Share Target import converge on one frontend import workflow.
+Manual import is now implemented through the regular authenticated application boundary:
 
-Future/target flow:
+```text
+Vue /import
+   -> File
+   -> FormData
+   -> POST /api/activities/import
+   -> device.auth
+   -> ImportGpxActivity
+   -> parser/statistics/storage/database
+```
+
+The browser application bootstraps an anonymous device only when no token exists in local storage. The shared API client adds the device Bearer token to protected calls. A 401 for an existing token does not silently bootstrap a replacement identity.
+
+The import endpoint validates upload size and `.gpx` filename, then delegates all parsing, duplicate detection and persistence to `ImportGpxActivity`. MIME is recorded but not used as the sole acceptance criterion because GPX exporters/share targets may use XML or generic MIME types.
+
+Manual import and the future Share Target import converge after obtaining a browser `File` object.
+
+Future Share Target flow:
 
 ```text
 Android Share
@@ -55,9 +71,7 @@ Android Share
    -> Service Worker
    -> temporary IndexedDB entry
    -> Vue import page
-   -> authenticated API upload
-   -> Laravel validation/parser/import service
-   -> persistence
+   -> existing authenticated POST /api/activities/import
 ```
 
 Service workers do not depend on the device bearer token for GPX ingestion.

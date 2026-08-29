@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Persistence and manual import — anonymous device authentication.
+Persistence and manual import — authenticated manual GPX import.
 
 ## Completed stages
 
@@ -32,49 +32,48 @@ Merged into `dev`:
 
 - activities, original GPX metadata/storage and normalized track points;
 - transactional `ImportGpxActivity`;
-- per-user SHA-256 duplicate detection;
-- persistence feature coverage.
+- per-user SHA-256 duplicate detection.
 
-## Current authentication slice
+### Anonymous device authentication
 
-The active branch implements the anonymous device identity model from ADR 0004.
+Merged into `dev`:
 
-First device:
+- anonymous first-device bootstrap;
+- per-device Bearer credentials stored as hashes;
+- revocation/last-used tracking;
+- 2-minute single-use pairing credentials.
 
-1. `POST /api/bootstrap`;
-2. create an internal anonymous `User`;
-3. issue a 256-bit random device credential;
-4. return plaintext once;
-5. store only SHA-256 in `device_tokens`.
+## Current manual-import slice
 
-Protected API requests use:
+Backend:
 
-```http
-Authorization: Bearer <device-token>
-```
+- protected `POST /api/activities/import` requires `device.auth`;
+- accepts multipart field `file`;
+- upload limit is 10 MiB;
+- filename must end in `.gpx` while MIME type is preserved rather than trusted for compatibility with mobile share/export implementations;
+- calls the existing `ImportGpxActivity` use case;
+- returns activity summary on success;
+- returns `409` with existing `activity_id` for duplicate content;
+- returns `422` for malformed/non-GPX uploads.
 
-`AuthenticateDeviceToken` resolves the owning user, rejects revoked credentials and periodically updates `last_used_at`.
+Frontend:
 
-Additional devices:
+- on first application start, absence of a device token triggers `POST /api/bootstrap`;
+- the returned token is stored in `localStorage` under `bike-stat.device-token`;
+- an existing token is reused and is not silently replaced when later requests return 401;
+- the shared API client adds `Authorization: Bearer ...`;
+- `/import` now contains a functional GPX file picker and multipart upload flow;
+- success and duplicate/auth/parser errors are shown in the import surface.
 
-1. an authenticated device calls `POST /api/pairings`;
-2. a separate random pairing credential is issued with a 2-minute expiry;
-3. the returned pairing URL keeps the secret in the URL fragment: `/pair#token=...`;
-4. the new device calls `POST /api/pairings/redeem`;
-5. redemption is transactionally locked and single-use;
-6. a new independent device credential is issued for the same user.
-
-Public bootstrap/redeem endpoints and authenticated pairing issuance are rate limited.
-
-The current Laravel user table still contains the framework-default required name/email/password columns. Anonymous bootstrap fills them with non-user-facing technical random values for schema compatibility. They are not authentication credentials and are not exposed in the product. Removing those legacy fields may be done later as an isolated schema cleanup.
+This manual import path is intentionally the same authenticated frontend/API boundary that the future Web Share Target flow will call after it obtains a File object.
 
 ## Immediate next work
 
-1. Verify and merge device authentication.
-2. Expose protected `POST /api/activities/import` using `ImportGpxActivity`.
-3. Add the frontend device-token bootstrap/storage/API client.
-4. Build manual GPX import UI.
-5. Add activity list/details API and UI.
+1. Verify and merge authenticated manual GPX import.
+2. Add activity list/details API and UI so successful imports can be browsed.
+3. Add pairing/settings frontend flow for moving the anonymous identity to another device.
+4. Add PWA manifest/service worker baseline.
+5. Connect Web Share Target to the existing import flow.
 
 ## Current blockers
 

@@ -36,6 +36,31 @@ Use focused tests while implementing, but run broad checks before handoff when s
 
 Use Laravel migrations. Do not manually mutate shared schemas.
 
+## GPX upload runtime limits
+
+The application accepts GPX uploads up to 10 MiB. PHP must allow the HTTP request to reach Laravel before the Laravel validation rule can enforce that limit.
+
+Deployment PHP configuration must therefore have at least:
+
+```ini
+upload_max_filesize = 10M
+post_max_size = 12M
+```
+
+Using `post_max_size = 16M` is recommended to leave comfortable multipart overhead.
+
+These settings are PHP runtime/deployment configuration, not Laravel `.env` settings. After changing PHP-FPM/Apache PHP configuration, restart/reload the relevant PHP/web-server process.
+
+If an otherwise valid GPX returns `The file failed to upload.`, inspect the active web SAPI configuration rather than only CLI PHP:
+
+```bash
+php -i | grep -E 'upload_max_filesize|post_max_size'
+```
+
+CLI values may differ from PHP-FPM/Apache values, so confirm the configuration used by the web request in the deployment environment.
+
+Reverse proxies may have their own body-size limit as well (for example Nginx `client_max_body_size`), which must also be at least the application upload limit.
+
 ## API/security
 
 - keep public bootstrap/pairing surfaces intentionally narrow and rate limited;
