@@ -161,6 +161,31 @@ Visualization-series downsampling is presentation-only and keeps bucket minima/m
 
 The current detail API still returns all normalized points. This is acceptable for current personal-use ride sizes; a dedicated visualization/downsampled API may replace it if payload size becomes a measured problem.
 
+## PWA baseline
+
+Bike Stat uses a small first-party service worker rather than an additional PWA build dependency.
+
+The web app manifest is static under `public/manifest.webmanifest` and includes raster 192/512 install icons plus a maskable 512 icon.
+
+The production application registers `/sw.js` with a version query derived from the current Vite application bundle URL. This couples the service-worker registration version to each frontend build without embedding deployment timestamps in source code.
+
+During install the service worker caches:
+
+- root SPA HTML;
+- web manifest and application icons;
+- the current production Vite assets discovered from `/build/manifest.json`.
+
+Caching policy:
+
+- SPA navigation: network-first, cached root app-shell fallback;
+- same-origin build assets/icons: cache-first;
+- API requests: network only;
+- third-party OpenStreetMap tiles/fonts: outside the current offline cache.
+
+Updates are controlled. A new worker remains waiting until the Vue shell explicitly sends `SKIP_WAITING` after user confirmation. This avoids forcing reloads during imports or other active interaction.
+
+This baseline provides offline application-shell startup, not offline activity data. Full offline activity caching/import/synchronization remains post-MVP.
+
 ## Future/considered
 
 Additional cadence/heart-rate/power/temperature charts, server-side visualization payload shaping, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
