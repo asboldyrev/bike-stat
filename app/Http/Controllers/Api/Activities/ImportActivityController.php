@@ -16,6 +16,9 @@ final class ImportActivityController extends Controller
     {
         $validated = $request->validate([
             'file' => ['required', 'file', 'max:10240'],
+        ], [
+            'file.uploaded' => 'The GPX file could not be uploaded. Check the server PHP upload_max_filesize and post_max_size limits.',
+            'file.max' => 'The GPX file must not be larger than 10 MiB.',
         ]);
 
         /** @var UploadedFile $file */
