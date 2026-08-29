@@ -19,6 +19,5 @@ Route::middleware(['device.auth', 'throttle:60,1'])->group(function (): void {
     Route::get('/activities/{activity}', [ActivityController::class, 'show'])
         ->whereNumber('activity');
 
-    Route::post('/activities/import', ImportActivityController::class)
-        ->middleware('throttle:10,1');
+    Route::post('/activities/import', ImportActivityController::class);
 });
