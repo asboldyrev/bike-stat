@@ -87,15 +87,21 @@ export const ImportPage = {
                     }, message.value)
                     : null,
                 activity.value
-                    ? h('div', { class: 'grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-4 text-sm' }, [
-                        h('div', [
-                            h('div', { class: 'text-slate-500' }, 'Название'),
-                            h('div', { class: 'font-medium' }, activity.value.name ?? 'Без названия'),
+                    ? h('div', { class: 'space-y-3 rounded-lg bg-slate-50 p-4 text-sm' }, [
+                        h('div', { class: 'grid grid-cols-2 gap-3' }, [
+                            h('div', [
+                                h('div', { class: 'text-slate-500' }, 'Название'),
+                                h('div', { class: 'font-medium' }, activity.value.name ?? 'Без названия'),
+                            ]),
+                            h('div', [
+                                h('div', { class: 'text-slate-500' }, 'Дистанция'),
+                                h('div', { class: 'font-medium' }, formatDistance(activity.value.distance_meters)),
+                            ]),
                         ]),
-                        h('div', [
-                            h('div', { class: 'text-slate-500' }, 'Дистанция'),
-                            h('div', { class: 'font-medium' }, formatDistance(activity.value.distance_meters)),
-                        ]),
+                        h('a', {
+                            href: `/activities/${activity.value.id}`,
+                            class: 'inline-block font-medium underline',
+                        }, 'Открыть поездку'),
                     ])
                     : null,
             ]),
