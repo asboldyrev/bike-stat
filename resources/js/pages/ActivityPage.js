@@ -1,6 +1,7 @@
 import { h, onMounted, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { apiRequest } from '../api.js';
+import { activitiesReturnRoute } from '../activityPagination.js';
 import { buildMetricSeries } from '../activityVisualization.js';
 import { MetricChart } from '../components/activity/MetricChart.js';
 import { RouteMap } from '../components/activity/RouteMap.js';
@@ -71,7 +72,10 @@ export const ActivityPage = {
             if (state.value === 'error') {
                 return h('div', { class: 'space-y-4' }, [
                     h('div', { class: 'rounded-xl border border-red-200 bg-red-50 p-4 text-red-800' }, message.value),
-                    h(RouterLink, { to: '/activities', class: 'inline-flex min-h-11 items-center text-sm font-medium underline' }, () => 'Вернуться к поездкам'),
+                    h(RouterLink, {
+                        to: activitiesReturnRoute(route.query.fromPage),
+                        class: 'inline-flex min-h-11 items-center text-sm font-medium underline',
+                    }, () => 'Вернуться к поездкам'),
                 ]);
             }
 
@@ -92,7 +96,7 @@ export const ActivityPage = {
             return h('section', { class: 'space-y-5 sm:space-y-6' }, [
                 h('div', [
                     h(RouterLink, {
-                        to: '/activities',
+                        to: activitiesReturnRoute(route.query.fromPage),
                         class: 'inline-flex min-h-11 items-center text-sm text-slate-500 hover:text-slate-950',
                     }, () => '← Все поездки'),
                     h('h1', { class: 'mt-2 break-words text-2xl font-semibold tracking-tight sm:text-3xl' }, item.name ?? 'Без названия'),

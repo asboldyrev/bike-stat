@@ -34,6 +34,48 @@ final class ActivityApiTest extends TestCase
     }
 
     #[Test]
+    public function activity_list_paginates_beyond_the_first_twenty_items(): void
+    {
+        [$user, $token] = $this->bootstrapIdentity();
+        [$otherUser] = $this->bootstrapIdentity();
+
+        for ($index = 1; $index <= 25; $index++) {
+            \App\Models\Activity::query()->create([
+                'user_id' => $user->id,
+                'name' => 'Ride '.$index,
+                'source' => 'gpx',
+                'started_at' => now()->subMinutes($index),
+                'distance_meters' => $index * 1000,
+            ]);
+        }
+
+        \App\Models\Activity::query()->create([
+            'user_id' => $otherUser->id,
+            'name' => 'Other ride',
+            'source' => 'gpx',
+            'started_at' => now(),
+            'distance_meters' => 1000,
+        ]);
+
+        $this->withToken($token)
+            ->getJson('/api/activities?page=1')
+            ->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('meta.per_page', 20)
+            ->assertJsonPath('meta.total', 25);
+
+        $this->withToken($token)
+            ->getJson('/api/activities?page=2')
+            ->assertOk()
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('meta.total', 25);
+    }
+
+    #[Test]
     public function authenticated_user_can_open_their_activity_with_track_points(): void
     {
         Storage::fake('local');

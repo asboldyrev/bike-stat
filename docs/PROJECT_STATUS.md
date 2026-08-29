@@ -72,10 +72,29 @@ Sequential single-file requests are intentional:
 
 The previous additional 10 requests/minute import throttle was removed. The authenticated API group still applies its existing 60 requests/minute throttle, which makes practical sequential history imports possible while retaining an authenticated request-rate boundary.
 
+## Current activity-list pagination slice
+
+A real history import exposed that the backend already paginated activities at 20 per page while the frontend ignored pagination metadata and only ever requested the first page.
+
+The active branch adds mobile-first pagination to the activity list:
+
+- stores the active page in the SPA URL as `/activities?page=N`;
+- requests `/api/activities?page=N`;
+- restores the page after browser refresh/direct navigation;
+- activity detail links carry `fromPage=N`, so the explicit “All rides” return link restores the originating list page;
+- browser Back also naturally returns to the URL-backed list page;
+- shows the authenticated user's total ride count;
+- provides touch-sized Previous/Next controls;
+- shows `Page X of Y`;
+- updates the list without a full page reload;
+- scrolls back to the top when the page changes;
+- keeps the pagination bar reachable at the bottom of the phone viewport;
+- backend regression coverage verifies 25 owned activities become 20 + 5 across two pages while foreign activities remain excluded.
+
 ## Immediate next work
 
-1. Verify and merge bulk GPX import.
-2. Refine global navigation/activity list for narrow touch screens.
+1. Verify and merge activity-list pagination.
+2. Continue global navigation/activity-list mobile-first refinement.
 3. Add pairing/settings frontend flow.
 4. Continue map/chart interaction improvements and optional telemetry charts.
 5. Add PWA manifest/service worker baseline and Share Target integration.
