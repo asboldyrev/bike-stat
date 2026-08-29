@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 final class ActivityStatisticsCalculatorTest extends TestCase
 {
     #[Test]
-    public function it_calculates_basic_statistics_for_a_track(): void
+    public function it_calculates_basic_statistics_for_a_generic_track(): void
     {
         $gpx = (new GpxParser())->parse(
             file_get_contents(__DIR__.'/../../Fixtures/gpx/simple.gpx'),
@@ -30,5 +30,31 @@ final class ActivityStatisticsCalculatorTest extends TestCase
         self::assertSame(3.0, $statistics->elevationLossMeters);
         self::assertSame(9.0, $statistics->minimumElevationMeters);
         self::assertSame(12.0, $statistics->maximumElevationMeters);
+    }
+
+    #[Test]
+    public function it_prefers_complete_source_telemetry_over_one_second_gps_deltas(): void
+    {
+        $gpx = (new GpxParser())->parse(
+            file_get_contents(__DIR__.'/../../Fixtures/gpx/supercycle.gpx'),
+        );
+
+        $statistics = (new ActivityStatisticsCalculator(
+            elevationCalculator: new ElevationCalculator(medianWindowPoints: 1),
+        ))->calculate($gpx);
+
+        // Source cumulative distance is authoritative when complete and monotonic.
+        self::assertSame(16.0, $statistics->distanceMeters);
+
+        // Two one-second recording segments with a nine-second pause between them.
+        self::assertSame(11, $statistics->elapsedTimeSeconds);
+        self::assertSame(2, $statistics->movingTimeSeconds);
+
+        // 16 m / 2 s = 8 m/s.
+        self::assertSame(8.0, $statistics->averageSpeedMetersPerSecond);
+
+        // GPS contains an intentionally large one-second coordinate jump, but the
+        // recorded device speed remains the peak source value.
+        self::assertSame(5.0, $statistics->maxSpeedMetersPerSecond);
     }
 }
