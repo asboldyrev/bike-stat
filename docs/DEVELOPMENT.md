@@ -86,6 +86,8 @@ Use HTTPS for phone/staging/production verification. Local development may use b
 
 The production build exposes `/build/manifest.json`; the Bike Stat service worker reads that manifest during install to cache the current Vite app-shell assets. Deployment must therefore publish the complete `public/build` directory together with `public/sw.js`, `public/manifest.webmanifest` and `public/icons`.
 
+Keep the service-worker registration URL stable (`/sw.js`) and bypass HTTP caching for update checks. Do not version the worker registration with the Vite bundle hash: that previously caused persistent waiting-worker prompts/reload loops.
+
 Do not enable automatic `skipWaiting` without revisiting the update UX: current behavior intentionally requires explicit user confirmation so an active bulk import is not interrupted by a deployment.
 
 API responses and OpenStreetMap tiles are not part of the PWA baseline cache.
