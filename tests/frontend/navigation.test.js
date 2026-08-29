@@ -14,10 +14,9 @@ test('mobile navigation exposes the four primary MVP sections', () => {
     );
 });
 
-test('automatic anonymous bootstrap is skipped for a pairing link', () => {
-    assert.equal(shouldSkipAutomaticBootstrap('/pair', '#token=secret'), true);
-    assert.equal(shouldSkipAutomaticBootstrap('/pair', ''), false);
-    assert.equal(shouldSkipAutomaticBootstrap('/activities', '#token=secret'), false);
+test('automatic anonymous bootstrap is always skipped on pairing route', () => {
+    assert.equal(shouldSkipAutomaticBootstrap('/pair'), true);
+    assert.equal(shouldSkipAutomaticBootstrap('/activities'), false);
 });
 
 test('pairing token is read from URL fragment', () => {
