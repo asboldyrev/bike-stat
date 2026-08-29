@@ -98,6 +98,15 @@ final class GpxParser
             temperature: $this->nullableFloat(
                 $this->firstText($xpath, './/*[local-name()="atemp" or local-name()="temp"]', $node),
             ),
+            sourceDistanceMeters: $this->nullableFloat(
+                $this->firstText($xpath, './*[local-name()="extensions"]/*[local-name()="distance"]', $node),
+            ),
+            sourceSpeedMetersPerSecond: $this->nullableFloat(
+                $this->firstText($xpath, './/*[local-name()="speed"]', $node),
+            ),
+            courseDegrees: $this->nullableFloat(
+                $this->firstText($xpath, './/*[local-name()="course"]', $node),
+            ),
         );
     }
 
