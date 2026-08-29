@@ -88,6 +88,18 @@ export const ActivityPage = {
                     metric('Максимальная скорость', speed(item.max_speed_mps)),
                     metric('Набор высоты', `${Math.round(item.elevation_gain_meters)} м`),
                     metric('Сброс высоты', `${Math.round(item.elevation_loss_meters)} м`),
+                    metric(
+                        'Высоты min–max',
+                        item.minimum_elevation_meters == null || item.maximum_elevation_meters == null
+                            ? '—'
+                            : `${Math.round(item.minimum_elevation_meters)}–${Math.round(item.maximum_elevation_meters)} м`,
+                    ),
+                    metric(
+                        'Перепад высот',
+                        item.minimum_elevation_meters == null || item.maximum_elevation_meters == null
+                            ? '—'
+                            : `${Math.round(item.maximum_elevation_meters - item.minimum_elevation_meters)} м`,
+                    ),
                     metric('Точек трека', String(item.track_points.length)),
                 ]),
                 h('div', { class: 'rounded-xl border bg-white p-5' }, [
