@@ -1,6 +1,9 @@
 import { h, onMounted, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { apiRequest } from '../api.js';
+import { buildMetricSeries } from '../activityVisualization.js';
+import { MetricChart } from '../components/activity/MetricChart.js';
+import { RouteMap } from '../components/activity/RouteMap.js';
 
 function km(meters) {
     return `${(Number(meters) / 1000).toFixed(2)} км`;
@@ -13,13 +16,13 @@ function speed(mps) {
 function duration(seconds) {
     if (seconds == null) return '—';
 
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const rest = seconds % 60;
 
-    return h > 0
-        ? `${h} ч ${String(m).padStart(2, '0')} мин`
-        : `${m} мин ${String(s).padStart(2, '0')} с`;
+    return hours > 0
+        ? `${hours} ч ${String(minutes).padStart(2, '0')} мин`
+        : `${minutes} мин ${String(rest).padStart(2, '0')} с`;
 }
 
 function dateTime(value) {
@@ -32,9 +35,9 @@ function dateTime(value) {
 }
 
 function metric(label, value) {
-    return h('div', { class: 'rounded-xl border bg-white p-4' }, [
-        h('div', { class: 'text-sm text-slate-500' }, label),
-        h('div', { class: 'mt-1 text-xl font-semibold' }, value),
+    return h('div', { class: 'min-w-0 rounded-xl border bg-white p-3 sm:p-4' }, [
+        h('div', { class: 'text-xs text-slate-500 sm:text-sm' }, label),
+        h('div', { class: 'mt-1 break-words text-lg font-semibold sm:text-xl' }, value),
     ]);
 }
 
@@ -68,19 +71,34 @@ export const ActivityPage = {
             if (state.value === 'error') {
                 return h('div', { class: 'space-y-4' }, [
                     h('div', { class: 'rounded-xl border border-red-200 bg-red-50 p-4 text-red-800' }, message.value),
-                    h(RouterLink, { to: '/activities', class: 'text-sm font-medium underline' }, () => 'Вернуться к поездкам'),
+                    h(RouterLink, { to: '/activities', class: 'inline-flex min-h-11 items-center text-sm font-medium underline' }, () => 'Вернуться к поездкам'),
                 ]);
             }
 
             const item = activity.value;
+            const elevationSeries = buildMetricSeries(
+                item.track_points,
+                'elevation_meters',
+            );
+            const speedSeries = buildMetricSeries(
+                item.track_points,
+                'source_speed_mps',
+                {
+                    multiplier: 3.6,
+                    requirePositive: true,
+                },
+            );
 
-            return h('section', { class: 'space-y-6' }, [
+            return h('section', { class: 'space-y-5 sm:space-y-6' }, [
                 h('div', [
-                    h(RouterLink, { to: '/activities', class: 'text-sm text-slate-500 hover:text-slate-950' }, () => '← Все поездки'),
-                    h('h1', { class: 'mt-3 text-3xl font-semibold tracking-tight' }, item.name ?? 'Без названия'),
-                    h('p', { class: 'mt-2 text-slate-600' }, dateTime(item.started_at)),
+                    h(RouterLink, {
+                        to: '/activities',
+                        class: 'inline-flex min-h-11 items-center text-sm text-slate-500 hover:text-slate-950',
+                    }, () => '← Все поездки'),
+                    h('h1', { class: 'mt-2 break-words text-2xl font-semibold tracking-tight sm:text-3xl' }, item.name ?? 'Без названия'),
+                    h('p', { class: 'mt-2 text-sm text-slate-600 sm:text-base' }, dateTime(item.started_at)),
                 ]),
-                h('div', { class: 'grid grid-cols-2 gap-3 lg:grid-cols-4' }, [
+                h('div', { class: 'grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4' }, [
                     metric('Дистанция', km(item.distance_meters)),
                     metric('Время', duration(item.elapsed_time_seconds)),
                     metric('В движении', duration(item.moving_time_seconds)),
@@ -102,11 +120,34 @@ export const ActivityPage = {
                     ),
                     metric('Точек трека', String(item.track_points.length)),
                 ]),
-                h('div', { class: 'rounded-xl border bg-white p-5' }, [
+                h(RouteMap, { points: item.track_points }),
+                h('div', { class: 'grid gap-4 xl:grid-cols-2' }, [
+                    h(MetricChart, {
+                        title: 'Профиль высоты',
+                        series: elevationSeries,
+                        unit: 'м',
+                        digits: 0,
+                        unavailableMessage: 'В GPX нет данных высоты.',
+                    }),
+                    h(MetricChart, {
+                        title: 'Скорость',
+                        series: speedSeries,
+                        unit: 'км/ч',
+                        digits: 1,
+                        unavailableMessage: 'Надёжная скорость по точкам в этом GPX не записана.',
+                    }),
+                ]),
+                h('div', { class: 'rounded-xl border bg-white p-4 sm:p-5' }, [
                     h('h2', { class: 'font-semibold' }, 'Исходный файл'),
                     h('div', { class: 'mt-3 grid gap-2 text-sm sm:grid-cols-2' }, [
-                        h('div', [h('span', { class: 'text-slate-500' }, 'Файл: '), item.file?.original_name ?? '—']),
-                        h('div', [h('span', { class: 'text-slate-500' }, 'Размер: '), item.file ? `${Math.ceil(item.file.size_bytes / 1024)} КБ` : '—']),
+                        h('div', { class: 'min-w-0 break-all sm:break-normal' }, [
+                            h('span', { class: 'text-slate-500' }, 'Файл: '),
+                            item.file?.original_name ?? '—',
+                        ]),
+                        h('div', [
+                            h('span', { class: 'text-slate-500' }, 'Размер: '),
+                            item.file ? `${Math.ceil(item.file.size_bytes / 1024)} КБ` : '—',
+                        ]),
                     ]),
                 ]),
             ]);
