@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Activities\ImportActivityController;
 use App\Http\Controllers\Api\Auth\BootstrapController;
 use App\Http\Controllers\Api\Auth\PairingController;
 use Illuminate\Support\Facades\Route;
@@ -12,4 +13,6 @@ Route::post('/pairings/redeem', [PairingController::class, 'redeem'])
 
 Route::middleware(['device.auth', 'throttle:60,1'])->group(function (): void {
     Route::post('/pairings', [PairingController::class, 'store']);
+    Route::post('/activities/import', ImportActivityController::class)
+        ->middleware('throttle:10,1');
 });
