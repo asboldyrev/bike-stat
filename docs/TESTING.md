@@ -45,6 +45,8 @@ Add/update tests when practical for:
 - chart-series source-distance fallback/downsampling behavior;
 - zero-only source speed remaining unavailable rather than misleading;
 - state preservation on failed mutations;
+- service-worker support detection/versioned registration/update activation;
+- PWA manual acceptance on HTTPS: installability, standalone launch, cached shell offline start and controlled update;
 - shared interactive controls.
 
 Visual-only CSS changes do not require exhaustive snapshot coverage.
