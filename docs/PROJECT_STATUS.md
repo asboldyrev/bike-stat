@@ -58,7 +58,8 @@ Navigation:
 - activity detail keeps Activities highlighted as the active primary section;
 - safe-area padding is applied for phones with bottom insets;
 - desktop keeps a compact header navigation as progressive enhancement;
-- content receives bottom padding so fixed mobile navigation does not cover page content.
+- content receives bottom padding so fixed mobile navigation does not cover page content;
+- page-specific fixed action bars (for example bulk import) must sit above the primary mobile navigation rather than sharing the same bottom offset, and the page must reserve enough space for both layers.
 
 Settings/pairing:
 
