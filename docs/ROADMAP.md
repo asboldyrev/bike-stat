@@ -53,11 +53,15 @@ MVP UI is mobile-first. Every screen in this stage and later user-facing MVP sta
 
 ## 4. Map and charts
 
-Status: planned.
+Status: active.
 
-- route map;
-- elevation and speed charts;
-- cadence/heart-rate/power/temperature when present.
+- [x] route map;
+- [x] elevation profile;
+- [x] source-speed chart when reliable point speed is available;
+- [ ] cadence chart when present;
+- [ ] heart-rate chart when present;
+- [ ] power chart when present;
+- [ ] temperature chart when present.
 
 ## 5. PWA baseline
 

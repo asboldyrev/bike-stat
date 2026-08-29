@@ -137,6 +137,24 @@ The Vue routes `/activities` and `/activities/:id` consume this boundary. Activi
 
 Because original GPX files are preserved, `RecalculateActivityStatistics` and the `activities:recalculate` Artisan command can refresh persisted aggregate metrics when statistic algorithms improve without reimporting or duplicating the ride.
 
+## Activity visualization
+
+Activity detail visualization consumes the existing normalized `track_points` representation; it does not re-read GPX in the browser.
+
+The route map is implemented without an additional mapping runtime dependency:
+
+- Web Mercator projection is calculated in the frontend;
+- OpenStreetMap raster tiles are rendered inside a responsive SVG viewport;
+- route polylines preserve `segment_index` boundaries;
+- rendering may downsample very dense route geometry, without mutating server data;
+- OpenStreetMap attribution is displayed with the map.
+
+Metric charts are responsive SVG components. Elevation uses normalized point elevation. Speed uses source point speed only when the source contains meaningful positive values. Legacy zero-only source speed is shown as unavailable rather than falling back to a potentially noisy coordinate-derived chart.
+
+Visualization-series downsampling is presentation-only and keeps bucket minima/maxima so peaks/valleys are less likely to disappear.
+
+The current detail API still returns all normalized points. This is acceptable for current personal-use ride sizes; a dedicated visualization/downsampled API may replace it if payload size becomes a measured problem.
+
 ## Future/considered
 
-Map/chart payload shaping or track-point downsampling, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
+Additional cadence/heart-rate/power/temperature charts, server-side visualization payload shaping, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
