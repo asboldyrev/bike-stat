@@ -14,6 +14,14 @@ The primary mobile flow is:
 
 Manual GPX import is the fallback and uses the same application import flow after a File object is available.
 
+MVP must also support selecting/importing multiple GPX files in one action so an existing ride history can be loaded efficiently. Bulk import should process files independently, preserve duplicate detection, and report per-file success/failure rather than failing the whole batch because one file is invalid or already imported.
+
+## Mobile-first product constraint
+
+Bike Stat is primarily a phone application. All MVP UI work must be designed and verified mobile-first rather than treating mobile as a later responsive pass.
+
+Desktop layouts may progressively enhance the same screens, but core navigation, import, activity browsing, metrics, maps, charts, pairing and PWA flows must remain comfortable on narrow touch screens.
+
 ## Repository and stack
 
 Bike Stat is a single Laravel application containing backend/API and Vue frontend.
@@ -53,8 +61,8 @@ The release priority is:
 
 1. reliable project foundation;
 2. reliable GPX parsing/calculation;
-3. persistence and manual import;
-4. activity UI;
+3. persistence and manual/bulk import;
+4. mobile-first activity UI;
 5. PWA installability;
 6. Android Share Target flow;
 7. dashboard and aggregate statistics;
