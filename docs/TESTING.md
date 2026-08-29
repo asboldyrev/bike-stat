@@ -39,7 +39,7 @@ Add/update tests when practical for:
 - import and duplicate behavior;
 - anonymous/device authentication;
 - pairing expiration/single-use semantics;
-- critical frontend import flows, including multi-file selection/import and partial failure;
+- critical frontend import flows, including multi-file selection, independent validation, sequential import, duplicate handling and partial failure;
 - mobile-first interaction/layout regressions for primary MVP flows;
 - route visualization preserving GPX segment boundaries;
 - chart-series source-distance fallback/downsampling behavior;
