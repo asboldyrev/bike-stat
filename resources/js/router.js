@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { ActivitiesPage } from './pages/ActivitiesPage.js';
 import { ActivityPage } from './pages/ActivityPage.js';
 import { ImportPage } from './pages/ImportPage.js';
+import { PairPage } from './pages/PairPage.js';
+import { SettingsPage } from './pages/SettingsPage.js';
 import { routeDefinitions } from './routes.js';
 
 const page = (title, description) => ({
@@ -20,6 +22,8 @@ const components = {
     activities: ActivitiesPage,
     activity: ActivityPage,
     import: ImportPage,
+    settings: SettingsPage,
+    pair: PairPage,
 };
 
 export const routes = routeDefinitions.map((route) => ({

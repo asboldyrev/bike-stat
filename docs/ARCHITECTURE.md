@@ -41,7 +41,11 @@ Device and pairing credentials are never interchangeable. Only hashes are persis
 
 The current framework-default user schema still requires name/email/password. Bootstrap populates non-user-facing technical values solely for schema compatibility; those fields are not product authentication credentials.
 
-The frontend may keep its device credential in browser storage for the MVP. This makes XSS prevention, CSP and dependency hygiene part of the security boundary.
+The frontend keeps its device credential in browser storage for the MVP. This makes XSS prevention, CSP and dependency hygiene part of the security boundary.
+
+The pairing frontend uses a dedicated `/pair` route. That route is excluded from normal first-run anonymous bootstrap so a newly opened pairing link cannot create an unrelated anonymous identity before redeeming the one-time token. On successful redemption, the new device token replaces local device identity state and the secret fragment is removed from browser history.
+
+The primary mobile application shell uses fixed bottom navigation for Overview, Activities, Import and Settings. Desktop progressively enhances the same route model with header navigation rather than introducing a different information architecture.
 
 ## GPX import boundary
 

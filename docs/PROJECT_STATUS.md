@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Persistence and manual import — mobile-first bulk GPX history import.
+Activity UI — mobile-first navigation and device pairing/settings.
 
 ## Completed stages
 
@@ -27,77 +27,59 @@ Merged into `dev`:
 - isolated GPS max-speed spike rejection;
 - deterministic unit/regression coverage.
 
-### Persistence and single-file import
+### Persistence/import
 
 Merged into `dev`:
 
 - activities, original GPX metadata/storage and normalized track points;
-- transactional `ImportGpxActivity`;
-- per-user SHA-256 duplicate detection;
+- transactional import and duplicate detection;
 - anonymous per-device authentication;
-- authenticated GPX import API;
-- single-file manual import UI.
+- single-file and bulk GPX import;
+- mobile-first bulk import workflow.
 
-### Activity browsing and visualization
+### Activity browsing/visualization
 
 Merged into `dev`:
 
-- owner-scoped activity list/detail API;
-- ride history and detail pages;
+- owner-scoped list/detail API;
+- URL-backed pagination;
 - route map;
-- elevation and reliable source-speed charts;
-- first mobile-first refinement of the detail screen.
+- elevation/reliable source-speed charts;
+- mobile-first activity detail baseline.
 
-## Current bulk-import slice
+## Current mobile navigation/settings slice
 
-The active branch extends the existing single-file authenticated import path rather than adding a second server-side batch API.
+The active branch adds a phone-first application shell and frontend pairing flow.
 
-Frontend behavior:
+Navigation:
 
-- one file picker may select multiple GPX files;
-- each selected file is validated independently for `.gpx` extension and 10 MiB maximum size;
-- valid files are uploaded sequentially through the existing `POST /api/activities/import`;
-- each file has its own pending/importing/success/duplicate/error/invalid status;
-- duplicate and invalid files do not stop later files;
-- successful and duplicate rows link to the resulting/existing activity;
-- a final summary reports new imports, duplicates and errors/skips;
-- the import screen is designed mobile-first with a full-width primary action and touch-sized controls.
+- mobile devices use a fixed bottom navigation bar;
+- primary sections are Overview, Activities, Import and Settings;
+- activity detail keeps Activities highlighted as the active primary section;
+- safe-area padding is applied for phones with bottom insets;
+- desktop keeps a compact header navigation as progressive enhancement;
+- content receives bottom padding so fixed mobile navigation does not cover page content;
+- page-specific fixed action bars (for example bulk import) must sit above the primary mobile navigation rather than sharing the same bottom offset, and the page must reserve enough space for both layers.
 
-Sequential single-file requests are intentional:
+Settings/pairing:
 
-- existing transactional/duplicate behavior is reused without a parallel implementation;
-- a very large history is not bundled into one huge multipart request;
-- PHP/reverse-proxy request-size limits continue to apply per file rather than to the whole history batch;
-- partial success is naturally preserved.
+- `/settings` can issue the existing two-minute one-time pairing link;
+- the link can be copied from the phone, including an HTTP-compatible copy fallback;
+- `/pair#token=...` redeems the pairing credential on the new device;
+- the redeemed device receives its own independent device token and stores it in localStorage;
+- successful pairing routes to Activities;
+- pairing token remains in the URL fragment and is removed from browser history immediately after successful redemption;
+- every `/pair` route skips normal first-run anonymous bootstrap, preventing creation of an orphan anonymous account before pairing or when a pairing link is malformed.
 
-The previous additional 10 requests/minute import throttle was removed. The authenticated API group still applies its existing 60 requests/minute throttle, which makes practical sequential history imports possible while retaining an authenticated request-rate boundary.
-
-## Current activity-list pagination slice
-
-A real history import exposed that the backend already paginated activities at 20 per page while the frontend ignored pagination metadata and only ever requested the first page.
-
-The active branch adds mobile-first pagination to the activity list:
-
-- stores the active page in the SPA URL as `/activities?page=N`;
-- requests `/api/activities?page=N`;
-- restores the page after browser refresh/direct navigation;
-- activity detail links carry `fromPage=N`, so the explicit “All rides” return link restores the originating list page;
-- browser Back also naturally returns to the URL-backed list page;
-- shows the authenticated user's total ride count;
-- provides touch-sized Previous/Next controls;
-- shows `Page X of Y`;
-- updates the list without a full page reload;
-- scrolls back to the top when the page changes;
-- keeps the pagination bar reachable at the bottom of the phone viewport;
-- backend regression coverage verifies 25 owned activities become 20 + 5 across two pages while foreign activities remain excluded.
+Current settings UI intentionally does not yet list/revoke named devices; backend revocation support exists at the credential level and a device-management API/UI can be added as a follow-up.
 
 ## Immediate next work
 
-1. Verify and merge activity-list pagination.
-2. Continue global navigation/activity-list mobile-first refinement.
-3. Add pairing/settings frontend flow.
-4. Continue map/chart interaction improvements and optional telemetry charts.
-5. Add PWA manifest/service worker baseline and Share Target integration.
+1. Verify and merge mobile navigation/settings/pairing.
+2. Continue map/chart interaction improvements and optional telemetry charts.
+3. Add PWA manifest/service-worker/installability baseline.
+4. Connect Android Share Target to the existing authenticated import flow.
+5. Build dashboard/aggregate statistics.
 
 ## Current blockers
 
