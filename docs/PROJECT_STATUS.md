@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Map and charts — mobile-first activity visualization.
+Persistence and manual import — mobile-first bulk GPX history import.
 
 ## Completed stages
 
@@ -27,7 +27,7 @@ Merged into `dev`:
 - isolated GPS max-speed spike rejection;
 - deterministic unit/regression coverage.
 
-### Persistence and single-file manual import
+### Persistence and single-file import
 
 Merged into `dev`:
 
@@ -35,65 +35,49 @@ Merged into `dev`:
 - transactional `ImportGpxActivity`;
 - per-user SHA-256 duplicate detection;
 - anonymous per-device authentication;
-- authenticated single-file GPX import API/UI.
+- authenticated GPX import API;
+- single-file manual import UI.
 
-Bulk import remains an MVP requirement and keeps this roadmap area active.
-
-### Activity list/detail
+### Activity browsing and visualization
 
 Merged into `dev`:
 
 - owner-scoped activity list/detail API;
 - ride history and detail pages;
-- basic metrics and source-file metadata.
+- route map;
+- elevation and reliable source-speed charts;
+- first mobile-first refinement of the detail screen.
 
-## Current visualization slice
+## Current bulk-import slice
 
-The active branch adds dependency-free route and metric visualization to the existing activity detail payload.
+The active branch extends the existing single-file authenticated import path rather than adding a second server-side batch API.
 
-Route map:
+Frontend behavior:
 
-- uses stored latitude/longitude track points;
-- projects coordinates with Web Mercator;
-- renders OpenStreetMap raster tiles in a responsive SVG viewport;
-- preserves GPX `trkseg` boundaries rather than drawing false lines across pauses/gaps;
-- marks start and finish;
-- downsamples only the rendered route geometry for very long tracks while leaving persisted data untouched;
-- includes OpenStreetMap attribution.
+- one file picker may select multiple GPX files;
+- each selected file is validated independently for `.gpx` extension and 10 MiB maximum size;
+- valid files are uploaded sequentially through the existing `POST /api/activities/import`;
+- each file has its own pending/importing/success/duplicate/error/invalid status;
+- duplicate and invalid files do not stop later files;
+- successful and duplicate rows link to the resulting/existing activity;
+- a final summary reports new imports, duplicates and errors/skips;
+- the import screen is designed mobile-first with a full-width primary action and touch-sized controls.
 
-Charts:
+Sequential single-file requests are intentional:
 
-- responsive SVG with no new runtime chart dependency;
-- elevation profile uses normalized GPX elevation;
-- speed chart uses recorded source speed when at least one positive value exists;
-- zero-only legacy SuperCycle speed data is treated as unavailable rather than drawing a misleading flat/derived GPS chart;
-- cumulative source distance is used as the horizontal axis when complete/monotonic enough for the series; otherwise point progress is used;
-- long series are min/max bucket-downsampled for rendering while preserving visual extrema.
+- existing transactional/duplicate behavior is reused without a parallel implementation;
+- a very large history is not bundled into one huge multipart request;
+- PHP/reverse-proxy request-size limits continue to apply per file rather than to the whole history batch;
+- partial success is naturally preserved.
 
-Mobile-first detail changes:
-
-- compact two-column metric grid on narrow screens;
-- smaller mobile typography/spacing;
-- touch-sized back navigation;
-- full-width map;
-- charts stack vertically on mobile and become columns only at wide desktop breakpoints;
-- long source filenames wrap instead of overflowing.
-
-No new npm dependencies are introduced.
-
-## MVP requirements still pending
-
-- bulk GPX selection/import with per-file progress and partial success;
-- broader mobile-first refinement of global navigation/activity-list/import/settings surfaces;
-- pairing/settings frontend;
-- PWA baseline and Android Share Target.
+The previous additional 10 requests/minute import throttle was removed. The authenticated API group still applies its existing 60 requests/minute throttle, which makes practical sequential history imports possible while retaining an authenticated request-rate boundary.
 
 ## Immediate next work
 
-1. Verify and merge route map/elevation-speed visualization.
-2. Implement bulk GPX import before declaring persistence/import complete.
-3. Refine global navigation/import/activity-list for narrow touch screens.
-4. Add pairing/settings frontend flow.
+1. Verify and merge bulk GPX import.
+2. Refine global navigation/activity list for narrow touch screens.
+3. Add pairing/settings frontend flow.
+4. Continue map/chart interaction improvements and optional telemetry charts.
 5. Add PWA manifest/service worker baseline and Share Target integration.
 
 ## Current blockers
