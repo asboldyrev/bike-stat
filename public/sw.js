@@ -3,6 +3,9 @@ const APP_SHELL_CACHE = `bike-stat-shell-${VERSION}`;
 const APP_SHELL_URLS = [
     '/',
     '/manifest.webmanifest',
+    '/icons/bike-stat-192.png',
+    '/icons/bike-stat-512.png',
+    '/icons/bike-stat-maskable-512.png',
     '/icons/bike-stat.svg',
     '/icons/bike-stat-maskable.svg',
 ];
