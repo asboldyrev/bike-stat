@@ -78,7 +78,11 @@ A real history import exposed that the backend already paginated activities at 2
 
 The active branch adds mobile-first pagination to the activity list:
 
+- stores the active page in the SPA URL as `/activities?page=N`;
 - requests `/api/activities?page=N`;
+- restores the page after browser refresh/direct navigation;
+- activity detail links carry `fromPage=N`, so the explicit “All rides” return link restores the originating list page;
+- browser Back also naturally returns to the URL-backed list page;
 - shows the authenticated user's total ride count;
 - provides touch-sized Previous/Next controls;
 - shows `Page X of Y`;
