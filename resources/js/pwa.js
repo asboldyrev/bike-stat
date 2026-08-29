@@ -2,8 +2,13 @@ export function canUseServiceWorker(navigatorLike = navigator) {
     return 'serviceWorker' in navigatorLike;
 }
 
+export function serviceWorkerUrl(buildVersion) {
+    return `/sw.js?v=${encodeURIComponent(buildVersion)}`;
+}
+
 export async function registerPwa({
     navigatorLike = navigator,
+    buildVersion = import.meta.url,
     onUpdateAvailable = () => {},
     onControllerChange = () => {},
 } = {}) {
@@ -11,9 +16,10 @@ export async function registerPwa({
         return null;
     }
 
-    const registration = await navigatorLike.serviceWorker.register('/sw.js', {
-        scope: '/',
-    });
+    const registration = await navigatorLike.serviceWorker.register(
+        serviceWorkerUrl(buildVersion),
+        { scope: '/' },
+    );
 
     if (registration.waiting) {
         onUpdateAvailable(registration);
