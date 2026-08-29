@@ -49,7 +49,9 @@ MVP UI is mobile-first. Every screen in this stage and later user-facing MVP sta
 - [x] activity details;
 - [x] basic metrics;
 - [x] robust loading/error/empty states;
-- [ ] mobile-first refinement of navigation, cards, spacing, touch targets and dense metric layouts.
+- [x] mobile-first primary navigation and touch-safe application shell;
+- [ ] continued mobile-first refinement of cards, spacing and dense metric layouts;
+- [x] settings/pairing flow for connecting another device.
 
 ## 4. Map and charts
 
