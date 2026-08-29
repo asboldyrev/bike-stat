@@ -35,4 +35,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(ActivityFile::class);
     }
+
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    public function pairingTokens(): HasMany
+    {
+        return $this->hasMany(PairingToken::class);
+    }
 }
