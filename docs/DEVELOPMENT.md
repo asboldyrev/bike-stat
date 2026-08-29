@@ -72,7 +72,9 @@ For every user-facing MVP change:
 - keep primary actions reachable and obvious on phones;
 - use touch-friendly controls and spacing;
 - verify dense metric/card layouts do not overflow or become unreadable on narrow screens;
-- desktop presentation should enhance, not redefine, the interaction model.
+- desktop presentation should enhance, not redefine, the interaction model;
+- primary mobile navigation must remain reachable without scrolling and must respect safe-area insets;
+- service routes such as `/pair` must not accidentally trigger first-run identity bootstrap before their own credential flow completes.
 
 Bulk GPX import must be implemented as a first-class MVP workflow rather than a desktop-only convenience. It should support multiple selected files, independent per-file results, and partial success.
 
