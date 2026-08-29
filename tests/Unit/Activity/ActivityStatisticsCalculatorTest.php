@@ -3,6 +3,7 @@
 namespace Tests\Unit\Activity;
 
 use App\Domain\Activity\Services\ActivityStatisticsCalculator;
+use App\Domain\Activity\Services\ElevationCalculator;
 use App\Infrastructure\Gpx\GpxParser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +17,9 @@ final class ActivityStatisticsCalculatorTest extends TestCase
             file_get_contents(__DIR__.'/../../Fixtures/gpx/simple.gpx'),
         );
 
-        $statistics = (new ActivityStatisticsCalculator())->calculate($gpx);
+        $statistics = (new ActivityStatisticsCalculator(
+            elevationCalculator: new ElevationCalculator(medianWindowPoints: 1),
+        ))->calculate($gpx);
 
         self::assertEqualsWithDelta(136.9, $statistics->distanceMeters, 1.0);
         self::assertSame(20, $statistics->elapsedTimeSeconds);
