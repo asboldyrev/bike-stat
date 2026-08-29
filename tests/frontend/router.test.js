@@ -3,16 +3,16 @@ import test from 'node:test';
 
 import { routeDefinitions } from '../../resources/js/routes.js';
 
-test('foundation routes remain available', () => {
+test('application routes remain available', () => {
     assert.deepEqual(
         routeDefinitions.map((route) => route.path),
-        ['/', '/activities', '/import'],
+        ['/', '/activities', '/activities/:id', '/import'],
     );
 });
 
 test('routes have stable names for navigation', () => {
     assert.deepEqual(
         routeDefinitions.map((route) => route.name),
-        ['dashboard', 'activities', 'import'],
+        ['dashboard', 'activities', 'activity', 'import'],
     );
 });
