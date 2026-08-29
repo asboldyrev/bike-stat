@@ -1,47 +1,65 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# Agent instructions
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+This file is the entry point for AI-assisted work in Bike Stat.
 
-## Prerequisites
+## Required reading before work
 
-Verify that PHP and Composer are available:
+Before proposing or implementing a change, read the latest `dev` branch and, in this order:
 
-```sh
-php -v
-composer -V
-```
+1. `AGENTS.md`
+2. `docs/PROJECT_CONTEXT.md`
+3. `docs/PROJECT_STATUS.md`
+4. `docs/ROADMAP.md`
+5. `docs/ARCHITECTURE.md`
+6. `docs/DEVELOPMENT.md`
+7. `docs/TESTING.md`
+8. `docs/DOCUMENTATION.md`
+9. relevant ADRs in `docs/decisions/`
+10. `BACKLOG.md` when the task concerns deferred work
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+Repository documentation and current `dev` code are the source of truth. Do not rely on an old conversation when they differ.
 
-macOS:
+## Repository workflow
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
+- Never modify `main` as part of agent work.
+- Start every task from the latest `dev`.
+- Use one short-lived branch per coherent task: `agent/<short-task-name>`.
+- Agent branches target `dev`.
+- Do not merge agent branches into `dev` or `main`.
+- Do not silently include unrelated cleanup.
 
-Windows PowerShell:
+## Before implementation
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
+- Inspect current code on `dev`.
+- Check `docs/PROJECT_STATUS.md` for the active checkpoint and immediate next work.
+- Check relevant ADRs before changing an accepted architecture.
+- Check `BACKLOG.md` before adding deferred work.
+- Review relevant backend/frontend tests before changing protected behavior.
 
-Linux:
+## Verification
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
+Run checks relevant to the change. At minimum consider:
 
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
+- `php artisan test`;
+- `npm test`;
+- `npm run build`;
+- regression coverage for bug fixes;
+- authorization/security tests for protected operations.
 
-## Agent Setup
+Do not claim a check passed unless it was actually run successfully.
 
-Install Laravel Boost from the application root before making application changes:
+## Documentation is part of the change
 
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
+Update documentation in the same branch when code or accepted decisions change documented project truth. Follow `docs/DOCUMENTATION.md`.
 
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## End-of-task handoff
+
+When work is ready for owner verification:
+
+- state the branch name;
+- summarize implemented scope;
+- list automated checks actually run and their result;
+- list manual checks still needed;
+- list documentation updated;
+- mention intentional limitations/follow-up;
+- do not merge the branch.
