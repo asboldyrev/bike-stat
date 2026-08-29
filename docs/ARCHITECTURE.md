@@ -69,7 +69,10 @@ Current boundaries:
 - `TrackPoint`, `TrackSegment` and `ParsedGpx` are persistence-independent domain objects;
 - common track-point extensions are read by XML local-name so namespace prefixes do not become application contracts;
 - `DistanceCalculator` uses the Haversine model;
-- `ActivityStatisticsCalculator` derives baseline distance/time/speed/elevation statistics from parsed segments.
+- `ActivityStatisticsCalculator` derives baseline distance/time/speed/elevation statistics from parsed segments;
+- source-provided measurements may also be preserved on `TrackPoint` for comparison/calibration rather than silently overriding calculated values.
+
+A representative SuperCycle export uses GPX 1.1 plus Garmin TrackPointExtension v2. In addition to cadence it provides cumulative `distance`, point `speed` and `course`. These are currently preserved as `sourceDistanceMeters`, `sourceSpeedMetersPerSecond` and `courseDegrees`.
 
 DTD/entity declarations are rejected and XML loading uses `LIBXML_NONET`.
 

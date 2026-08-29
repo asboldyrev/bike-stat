@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<gpx xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v2"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     creator="SuperCycle 3.4.4, build 926"
+     version="1.1">
+  <metadata>
+    <time>2026-08-28T11:24:59.960Z</time>
+  </metadata>
+  <trk>
+    <name>SuperCycle sample</name>
+    <type>Biking</type>
+    <trkseg>
+      <trkpt lat="52.0000000" lon="5.0000000">
+        <ele>100.0</ele>
+        <time>2026-08-28T11:25:00.965Z</time>
+        <extensions>
+          <distance>4.1</distance>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>66</gpxtpx:cad>
+            <gpxtpx:speed>1.7610738255033558</gpxtpx:speed>
+            <gpxtpx:course>10.0</gpxtpx:course>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="52.0000100" lon="5.0000100">
+        <ele>100.2</ele>
+        <time>2026-08-28T11:25:01.961Z</time>
+        <extensions>
+          <distance>6.15</distance>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>67</gpxtpx:cad>
+            <gpxtpx:speed>2.24034151547492</gpxtpx:speed>
+            <gpxtpx:course>11.0</gpxtpx:course>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

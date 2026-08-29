@@ -15,6 +15,9 @@ final readonly class TrackPoint
         public ?int $cadence = null,
         public ?float $power = null,
         public ?float $temperature = null,
+        public ?float $sourceDistanceMeters = null,
+        public ?float $sourceSpeedMetersPerSecond = null,
+        public ?float $courseDegrees = null,
     ) {
     }
 }
