@@ -7,9 +7,15 @@ import {
     primaryNavigation,
     shouldSkipAutomaticBootstrap,
 } from './navigation.js';
+import {
+    activateWaitingServiceWorker,
+    registerPwa,
+} from './pwa.js';
 import { router } from './router.js';
 
 const startupError = ref('');
+const updateRegistration = ref(null);
+let reloadAfterControllerChange = false;
 
 function navLink(item, route, mobile = false) {
     const active = route.name === item.name
@@ -29,6 +35,15 @@ function navLink(item, route, mobile = false) {
     }, () => item.label);
 }
 
+function requestApplicationUpdate() {
+    if (!updateRegistration.value?.waiting) {
+        return;
+    }
+
+    reloadAfterControllerChange = true;
+    activateWaitingServiceWorker(updateRegistration.value);
+}
+
 const App = {
     setup() {
         const route = useRoute();
@@ -37,6 +52,24 @@ const App = {
             const isPairing = route.name === 'pair';
 
             return h('div', { class: 'min-h-screen bg-background text-foreground' }, [
+                updateRegistration.value
+                    ? h('div', {
+                        class: 'fixed inset-x-3 top-3 z-[70] mx-auto max-w-md rounded-xl border bg-white/95 p-3 shadow-lg backdrop-blur sm:inset-x-auto sm:right-4 sm:top-4 sm:w-96',
+                    }, [
+                        h('div', { class: 'flex items-center gap-3' }, [
+                            h('div', { class: 'min-w-0 flex-1' }, [
+                                h('div', { class: 'text-sm font-semibold' }, 'Доступна новая версия'),
+                                h('div', { class: 'mt-0.5 text-xs text-slate-600' },
+                                    'Обновление будет применено только после нажатия кнопки.'),
+                            ]),
+                            h('button', {
+                                type: 'button',
+                                class: 'min-h-11 shrink-0 rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white',
+                                onClick: requestApplicationUpdate,
+                            }, 'Обновить'),
+                        ]),
+                    ])
+                    : null,
                 !isPairing
                     ? h('header', { class: 'hidden border-b bg-white/90 backdrop-blur sm:block' }, [
                         h('div', { class: 'mx-auto flex max-w-5xl items-center justify-between px-4 py-3' }, [
@@ -79,6 +112,21 @@ async function boot() {
     }
 
     createApp(App).use(createPinia()).use(router).mount('#app');
+
+    if (import.meta.env.PROD) {
+        registerPwa({
+            onUpdateAvailable(registration) {
+                updateRegistration.value = registration;
+            },
+            onControllerChange() {
+                if (reloadAfterControllerChange) {
+                    window.location.reload();
+                }
+            },
+        }).catch(() => {
+            // PWA registration failure must not make the online application unusable.
+        });
+    }
 }
 
 boot();
