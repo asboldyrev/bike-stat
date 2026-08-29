@@ -96,7 +96,9 @@ When every track point provides monotonic cumulative source distance and source 
 - max speed = maximum source speed;
 - average speed = source distance / source moving time.
 
-This avoids one-second GPS-coordinate spikes producing implausible cycling peak speeds. If complete/monotonic source telemetry is unavailable, Bike Stat falls back to Haversine distance and the existing movement-threshold calculation.
+This avoids one-second GPS-coordinate spikes producing implausible cycling peak speeds. If complete/monotonic source telemetry is unavailable, Bike Stat falls back to Haversine distance and movement-threshold calculations.
+
+Fallback maximum speed is delegated to `MaximumSpeedCalculator`. It rejects a single coordinate-derived interval when it is an isolated spike relative to both neighboring intervals (at least 3× neighbor scale and at least 5 m/s above the faster neighbor). Sustained high-speed sections remain valid because adjacent intervals corroborate the peak. This specifically handles legacy GPX exports where source speed is absent or unusable without imposing an arbitrary bicycle speed ceiling.
 
 A representative SuperCycle export uses GPX 1.1 plus Garmin TrackPointExtension v2. In addition to cadence it provides cumulative `distance`, point `speed` and `course`. These are currently preserved as `sourceDistanceMeters`, `sourceSpeedMetersPerSecond` and `courseDegrees`.
 
