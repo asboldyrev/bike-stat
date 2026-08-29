@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Bike Stat Test"
+ xmlns="http://www.topografix.com/GPX/1/1"
+ xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1">
+  <trk>
+    <name>Ride with extensions</name>
+    <trkseg>
+      <trkpt lat="52.1" lon="5.1">
+        <ele>30.5</ele>
+        <time>2026-08-29T12:00:00Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:atemp>21.5</gpxtpx:atemp>
+            <gpxtpx:hr>142</gpxtpx:hr>
+            <gpxtpx:cad>84</gpxtpx:cad>
+          </gpxtpx:TrackPointExtension>
+          <power>215</power>
+        </extensions>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
