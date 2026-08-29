@@ -80,12 +80,22 @@ The current moving-speed threshold is 1.0 m/s.
 
 Elevation statistics are delegated to `ElevationCalculator`. Its current calibration applies a 5-point median filter per GPX segment, ignores elevation changes with no horizontal movement, and rejects adjacent changes implying absolute grade above 40%. SuperCycle cumulative source distance is preferred for this plausibility check when present; generic GPX falls back to Haversine distance. Filter parameters are explicit constructor values and remain subject to calibration against additional representative rides.
 
-## GPX data ownership
+## GPX data ownership and persistence
 
-The original GPX file is source data and will be preserved when persistence is introduced. Activity rows, normalized track points and computed metrics are derived data.
+The original GPX file is source data and is preserved on the private `local` filesystem disk.
 
-Duplicate detection will be based on a content hash scoped to the owning user.
+Persistence is split into:
+
+- `activities`: owner, source, timestamps and computed aggregate statistics;
+- `activity_files`: one original source file per activity, including original name, disk/path, MIME type, byte size and SHA-256;
+- `activity_track_points`: normalized point data with GPX segment index and point sequence.
+
+`activity_files` repeats `user_id` intentionally so the database can enforce unique `(user_id, sha256)` duplicate detection without relying on cross-table logic.
+
+`ImportGpxActivity` is the application boundary that joins parser/statistics/storage/database concerns. The HTTP layer will call this use case later rather than reimplementing import logic.
+
+Original-file storage is written before the database transaction and explicitly removed if database persistence fails. Database child rows use foreign-key cascade deletion. Physical file deletion on activity removal remains an explicit application concern rather than an Eloquent model event.
 
 ## Future/considered
 
-Detailed GPX table schema, vendor-specific extension adapters, calibrated elevation/movement algorithms and offline synchronization will be documented when implemented.
+Anonymous device authentication, protected HTTP import, explicit activity-deletion orchestration and offline synchronization will be documented when implemented.
