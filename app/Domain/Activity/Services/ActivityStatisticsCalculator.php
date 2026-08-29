@@ -10,6 +10,7 @@ final class ActivityStatisticsCalculator
 {
     public function __construct(
         private readonly DistanceCalculator $distanceCalculator = new DistanceCalculator(),
+        private readonly ElevationCalculator $elevationCalculator = new ElevationCalculator(),
         private readonly float $movingThresholdMetersPerSecond = 1.0,
     ) {
     }
@@ -21,9 +22,6 @@ final class ActivityStatisticsCalculator
         $maxSpeed = null;
         $firstTime = null;
         $lastTime = null;
-        $elevationGain = 0.0;
-        $elevationLoss = 0.0;
-        $elevations = [];
 
         foreach ($gpx->segments as $segment) {
             $points = $segment->points;
@@ -33,10 +31,6 @@ final class ActivityStatisticsCalculator
                     $firstTime ??= $point->recordedAt;
                     $lastTime = $point->recordedAt;
                 }
-
-                if ($point->elevation !== null) {
-                    $elevations[] = $point->elevation;
-                }
             }
 
             for ($i = 1, $count = count($points); $i < $count; $i++) {
@@ -45,16 +39,6 @@ final class ActivityStatisticsCalculator
 
                 $segmentDistance = $this->distanceCalculator->between($previous, $current);
                 $distance += $segmentDistance;
-
-                if ($previous->elevation !== null && $current->elevation !== null) {
-                    $deltaElevation = $current->elevation - $previous->elevation;
-
-                    if ($deltaElevation > 0) {
-                        $elevationGain += $deltaElevation;
-                    } elseif ($deltaElevation < 0) {
-                        $elevationLoss += abs($deltaElevation);
-                    }
-                }
 
                 $seconds = $this->secondsBetween($previous, $current);
 
@@ -76,6 +60,7 @@ final class ActivityStatisticsCalculator
             : null;
 
         $averageSpeed = $movingTime > 0 ? $distance / $movingTime : null;
+        $elevation = $this->elevationCalculator->calculate($gpx);
 
         return new ActivityStatistics(
             distanceMeters: $distance,
@@ -83,10 +68,10 @@ final class ActivityStatisticsCalculator
             movingTimeSeconds: $movingTime > 0 ? $movingTime : ($elapsedTime === 0 ? 0 : null),
             averageSpeedMetersPerSecond: $averageSpeed,
             maxSpeedMetersPerSecond: $maxSpeed,
-            elevationGainMeters: $elevationGain,
-            elevationLossMeters: $elevationLoss,
-            minimumElevationMeters: $elevations === [] ? null : min($elevations),
-            maximumElevationMeters: $elevations === [] ? null : max($elevations),
+            elevationGainMeters: $elevation->gainMeters,
+            elevationLossMeters: $elevation->lossMeters,
+            minimumElevationMeters: $elevation->minimumMeters,
+            maximumElevationMeters: $elevation->maximumMeters,
         );
     }
 
