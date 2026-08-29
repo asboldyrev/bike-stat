@@ -4,17 +4,17 @@ This file tracks major stages. Immediate work belongs in `PROJECT_STATUS.md`; de
 
 ## 0. Project foundation
 
-Status: active.
+Status: completed.
 
-- [ ] documentation/source-of-truth structure;
-- [ ] Vue SPA bootstrap;
-- [ ] frontend regression test baseline;
-- [ ] CI backend/frontend quality gate;
-- [ ] initial architecture ADRs.
+- [x] documentation/source-of-truth structure;
+- [x] Vue SPA bootstrap;
+- [x] frontend regression test baseline;
+- [x] CI backend/frontend quality gate;
+- [x] initial architecture ADRs.
 
 ## 1. GPX domain
 
-Status: planned.
+Status: active.
 
 - validate GPX safely;
 - parse tracks/segments/points;
