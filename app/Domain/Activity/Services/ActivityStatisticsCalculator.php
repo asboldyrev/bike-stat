@@ -11,6 +11,7 @@ final class ActivityStatisticsCalculator
     public function __construct(
         private readonly DistanceCalculator $distanceCalculator = new DistanceCalculator(),
         private readonly ElevationCalculator $elevationCalculator = new ElevationCalculator(),
+        private readonly MaximumSpeedCalculator $maximumSpeedCalculator = new MaximumSpeedCalculator(),
         private readonly float $movingThresholdMetersPerSecond = 1.0,
     ) {
     }
@@ -47,13 +48,18 @@ final class ActivityStatisticsCalculator
                 }
 
                 $speed = $segmentDistance / $seconds;
-                $fallbackMaxSpeed = $fallbackMaxSpeed === null
-                    ? $speed
-                    : max($fallbackMaxSpeed, $speed);
 
                 if ($speed >= $this->movingThresholdMetersPerSecond) {
                     $fallbackMovingTime += $seconds;
                 }
+            }
+
+            $segmentMaxSpeed = $this->maximumSpeedCalculator->fromCoordinates($points);
+
+            if ($segmentMaxSpeed !== null) {
+                $fallbackMaxSpeed = $fallbackMaxSpeed === null
+                    ? $segmentMaxSpeed
+                    : max($fallbackMaxSpeed, $segmentMaxSpeed);
             }
         }
 
