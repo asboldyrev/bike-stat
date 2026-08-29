@@ -86,7 +86,11 @@ export const ImportPage = {
             const validCount = entries.value.filter((entry) => entry.status === 'pending').length;
             const processedCount = summary.success + summary.duplicate + summary.error + summary.invalid;
 
-            return h('section', { class: 'space-y-5 sm:space-y-6' }, [
+            return h('section', {
+                class: entries.value.length > 0
+                    ? 'space-y-5 pb-28 sm:space-y-6 sm:pb-24'
+                    : 'space-y-5 sm:space-y-6',
+            }, [
                 h('div', { class: 'space-y-2' }, [
                     h('h1', { class: 'text-2xl font-semibold tracking-tight sm:text-3xl' }, 'Импорт GPX'),
                     h('p', { class: 'max-w-2xl text-sm text-slate-600 sm:text-base' },
@@ -159,20 +163,6 @@ export const ImportPage = {
                         ))
                         : h('p', { class: 'text-sm text-slate-500' },
                             'Можно выбрать сразу всю историю поездок. Максимальный размер каждого файла — 10 МиБ.'),
-                    entries.value.length > 0
-                        ? h('button', {
-                            type: 'button',
-                            class: 'min-h-12 w-full rounded-lg bg-slate-950 px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto',
-                            disabled: state.value === 'loading' || validCount === 0,
-                            onClick: submit,
-                        }, state.value === 'loading'
-                            ? 'Импортируем…'
-                            : validCount > 1
-                                ? `Импортировать ${validCount} файлов`
-                                : validCount === 1
-                                    ? 'Импортировать файл'
-                                    : 'Нет файлов для импорта')
-                        : null,
                     state.value === 'done'
                         ? h('div', { class: 'rounded-lg bg-slate-50 p-3 text-sm' }, [
                             h('div', { class: 'font-medium' }, 'Импорт завершён'),
@@ -181,6 +171,40 @@ export const ImportPage = {
                         ])
                         : null,
                 ]),
+                entries.value.length > 0
+                    ? h('div', {
+                        class: 'fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:px-4',
+                    }, [
+                        h('div', {
+                            class: 'mx-auto flex max-w-5xl items-center gap-3',
+                        }, [
+                            h('div', { class: 'min-w-0 flex-1' }, [
+                                h('div', { class: 'truncate text-sm font-medium text-slate-900' },
+                                    state.value === 'loading'
+                                        ? `Обработано ${processedCount} из ${entries.value.length}`
+                                        : validCount > 0
+                                            ? `К импорту: ${validCount}`
+                                            : 'Все выбранные файлы обработаны'),
+                                h('div', { class: 'mt-0.5 truncate text-xs text-slate-500' },
+                                    state.value === 'done'
+                                        ? `Новых: ${summary.success} · дубликатов: ${summary.duplicate} · ошибок: ${summary.error + summary.invalid}`
+                                        : `Выбрано файлов: ${entries.value.length}`),
+                            ]),
+                            h('button', {
+                                type: 'button',
+                                class: 'min-h-12 shrink-0 rounded-lg bg-slate-950 px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 sm:px-5',
+                                disabled: state.value === 'loading' || validCount === 0,
+                                onClick: submit,
+                            }, state.value === 'loading'
+                                ? 'Импортируем…'
+                                : validCount > 1
+                                    ? `Импортировать ${validCount}`
+                                    : validCount === 1
+                                        ? 'Импортировать'
+                                        : 'Готово'),
+                        ]),
+                    ])
+                    : null,
             ]);
         };
     },
