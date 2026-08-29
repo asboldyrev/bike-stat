@@ -36,12 +36,18 @@ function navLink(item, route, mobile = false) {
 }
 
 function requestApplicationUpdate() {
-    if (!updateRegistration.value?.waiting) {
+    const registration = updateRegistration.value;
+
+    if (!registration?.waiting) {
+        updateRegistration.value = null;
         return;
     }
 
-    reloadAfterControllerChange = true;
-    activateWaitingServiceWorker(updateRegistration.value);
+    // Hide the prompt immediately. controllerchange may fire more than once in
+    // some browser/service-worker lifecycles, so reload permission is consumed
+    // by the first matching event only.
+    updateRegistration.value = null;
+    reloadAfterControllerChange = activateWaitingServiceWorker(registration);
 }
 
 const App = {
@@ -119,9 +125,12 @@ async function boot() {
                 updateRegistration.value = registration;
             },
             onControllerChange() {
-                if (reloadAfterControllerChange) {
-                    window.location.reload();
+                if (!reloadAfterControllerChange) {
+                    return;
                 }
+
+                reloadAfterControllerChange = false;
+                window.location.reload();
             },
         }).catch(() => {
             // PWA registration failure must not make the online application unusable.
