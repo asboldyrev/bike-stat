@@ -26,7 +26,7 @@ Status: completed.
 
 ## 2. Persistence and manual import
 
-Status: planned.
+Status: active.
 
 - activities;
 - original activity files with SHA-256;
