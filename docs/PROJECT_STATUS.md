@@ -4,40 +4,61 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-GPX domain — elevation calibration.
+Persistence and manual import — persistence backend.
 
-## Completed GPX domain
+## Completed stages
+
+### Project foundation
 
 Merged into `dev`:
 
-- defensive GPX parsing and domain values;
-- Haversine distance/time/speed baseline;
-- SuperCycle 3.4.4 compatibility;
-- preservation of SuperCycle source distance, speed, cadence and course for comparison/calibration.
+- repository documentation/source-of-truth structure;
+- Vue/Pinia/Router shell;
+- frontend smoke tests;
+- backend/frontend CI.
 
-## Current elevation slice
+### GPX domain
 
-The raw consecutive-elevation algorithm was rejected after calibration against a representative real SuperCycle ride because stationary/low-speed altitude noise accumulated into implausible gain/loss.
+Merged into `dev`:
 
-The current branch introduces a dedicated `ElevationCalculator`:
+- defensive GPX parser;
+- SuperCycle 3.4.4 source metrics;
+- distance/time/speed statistics;
+- calibrated elevation filtering boundary;
+- deterministic unit/regression coverage.
 
-1. median-filter elevations within each GPX segment using a 5-point window;
-2. determine horizontal movement from source cumulative distance when available, otherwise Haversine;
-3. ignore elevation changes where horizontal movement is zero;
-4. ignore adjacent changes that imply absolute grade above 40%;
-5. accumulate gain/loss from the remaining filtered profile;
-6. report min/max from the filtered elevation profile.
+## Current persistence slice
 
-Both median window and maximum grade are constructor parameters so later calibration does not require rewriting the algorithm.
+The active branch introduces persistence without exposing an HTTP API yet.
 
-On the representative real SuperCycle ride this materially reduces raw accumulated elevation noise, but no claim is made that the resulting number matches Strava or a DEM-corrected service. More representative rides should be compared before these defaults are considered final.
+Schema:
+
+- `activities`: activity identity and computed aggregate statistics;
+- `activity_files`: immutable original GPX metadata, private-storage path and SHA-256;
+- `activity_track_points`: normalized points preserving segment/order and supported source metrics.
+
+Import flow:
+
+1. calculate SHA-256 and reject an existing `(user_id, sha256)`;
+2. parse GPX and calculate statistics;
+3. write the original GPX to the private `local` disk;
+4. transactionally create the activity, file metadata and normalized track points;
+5. batch-insert track points;
+6. delete a newly written file when database persistence fails.
+
+The database also enforces a unique `(user_id, sha256)` constraint to protect against concurrent duplicate imports.
+
+The same GPX may belong to different users.
+
+Deleting an Activity cascades database rows through foreign keys. Physical source-file deletion is intentionally not hidden in Eloquent model events; it will be handled by an explicit application use case when activity deletion is implemented.
 
 ## Immediate next work
 
-1. Verify and merge the elevation-filter slice.
-2. Move to persistence: activities, original GPX file metadata/storage, normalized track points and per-user SHA-256 duplicate detection.
-3. Implement anonymous device authentication before protected user-data APIs are exposed.
-4. Add authenticated manual GPX import API/UI.
+1. Verify and merge the persistence backend.
+2. Implement anonymous users and per-device bearer authentication/pairing.
+3. Expose protected manual GPX import API using `ImportGpxActivity`.
+4. Add manual import UI.
+5. Add activity list/details API and UI.
 
 ## Current blockers
 
