@@ -80,12 +80,19 @@ php artisan activities:recalculate
 php artisan activities:recalculate <activity-id>
 ```
 
+## MVP requirements added
+
+Two requirements are now explicitly part of MVP rather than post-MVP polish:
+
+- bulk GPX import: the import surface must allow selecting multiple files and importing an existing history in one action, with per-file status and partial success;
+- mobile-first UX: Bike Stat is primarily used on phones, so all user-facing MVP screens must be designed and verified for narrow touch layouts first.
+
 ## Immediate next work
 
-1. Verify and merge source-telemetry statistic calibration.
-2. Recalculate existing imported rides.
-3. Add route map and elevation/speed visualization.
-4. Add pairing/settings frontend flow.
+1. Recalculate existing imported rides where needed after statistic changes.
+2. Add route map and elevation/speed visualization with mobile-first layout constraints.
+3. Add bulk GPX import before declaring the import stage complete.
+4. Add pairing/settings frontend flow with mobile-first UX.
 5. Add PWA manifest/service worker baseline and Share Target integration.
 
 ## Current blockers
