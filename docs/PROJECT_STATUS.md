@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Persistence and manual import — authenticated manual GPX import.
+Activity UI — list and detail browsing.
 
 ## Completed stages
 
@@ -26,51 +26,39 @@ Merged into `dev`:
 - distance/time/speed/elevation statistics;
 - deterministic unit/regression coverage.
 
-### Persistence backend
+### Persistence and manual import
 
 Merged into `dev`:
 
 - activities, original GPX metadata/storage and normalized track points;
 - transactional `ImportGpxActivity`;
-- per-user SHA-256 duplicate detection.
+- per-user SHA-256 duplicate detection;
+- anonymous per-device authentication;
+- authenticated manual GPX import API;
+- browser bootstrap/token storage and manual import UI.
 
-### Anonymous device authentication
-
-Merged into `dev`:
-
-- anonymous first-device bootstrap;
-- per-device Bearer credentials stored as hashes;
-- revocation/last-used tracking;
-- 2-minute single-use pairing credentials.
-
-## Current manual-import slice
+## Current activity UI slice
 
 Backend:
 
-- protected `POST /api/activities/import` requires `device.auth`;
-- accepts multipart field `file`;
-- upload limit is 10 MiB;
-- filename must end in `.gpx` while MIME type is preserved rather than trusted for compatibility with mobile share/export implementations;
-- calls the existing `ImportGpxActivity` use case;
-- returns activity summary on success;
-- returns `409` with existing `activity_id` for duplicate content;
-- returns `422` for malformed/non-GPX uploads.
+- `GET /api/activities` returns the authenticated user's activities, newest first, paginated 20 per page;
+- `GET /api/activities/{id}` returns one owned activity with original-file metadata and normalized track points;
+- ownership is enforced in the query itself;
+- another user's activity ID is returned as 404 rather than exposing its existence.
 
 Frontend:
 
-- on first application start, absence of a device token triggers `POST /api/bootstrap`;
-- the returned token is stored in `localStorage` under `bike-stat.device-token`;
-- an existing token is reused and is not silently replaced when later requests return 401;
-- the shared API client adds `Authorization: Bearer ...`;
-- `/import` now contains a functional GPX file picker and multipart upload flow;
-- success and duplicate/auth/parser errors are shown in the import surface.
+- `/activities` now lists imported rides with date, distance, moving time, average/max speed and elevation gain;
+- `/activities/:id` shows the basic activity metrics, original source-file information and track-point count;
+- successful manual import links directly to the resulting activity;
+- empty/loading/error states are present.
 
-This manual import path is intentionally the same authenticated frontend/API boundary that the future Web Share Target flow will call after it obtains a File object.
+The detail API currently returns all normalized track points. This is acceptable for the present personal-use baseline and enables the upcoming map/chart stage, but payload shaping/downsampling may be introduced when visualization behavior is implemented.
 
 ## Immediate next work
 
-1. Verify and merge authenticated manual GPX import.
-2. Add activity list/details API and UI so successful imports can be browsed.
+1. Verify and merge activity list/detail browsing.
+2. Add route map and elevation/speed visualization.
 3. Add pairing/settings frontend flow for moving the anonymous identity to another device.
 4. Add PWA manifest/service worker baseline.
 5. Connect Web Share Target to the existing import flow.
