@@ -49,7 +49,9 @@ final class ElevationCalculatorTest extends TestCase
             maximumGrade: 0.40,
         ))->calculate($gpx);
 
-        self::assertEqualsWithDelta(0.6, $statistics->gainMeters, 0.001);
+        // The two transitions touching the 120 m spike are rejected.
+        // Only 100.0 -> 100.2 and 100.4 -> 100.6 remain: 0.4 m gain total.
+        self::assertEqualsWithDelta(0.4, $statistics->gainMeters, 0.001);
         self::assertSame(0.0, $statistics->lossMeters);
     }
 
