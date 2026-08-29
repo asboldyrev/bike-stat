@@ -4,7 +4,7 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-Persistence and manual import — persistence backend.
+Persistence and manual import — anonymous device authentication.
 
 ## Completed stages
 
@@ -22,42 +22,58 @@ Merged into `dev`:
 Merged into `dev`:
 
 - defensive GPX parser;
-- SuperCycle 3.4.4 source metrics;
-- distance/time/speed statistics;
-- calibrated elevation filtering boundary;
+- SuperCycle 3.4.4 compatibility;
+- distance/time/speed/elevation statistics;
 - deterministic unit/regression coverage.
 
-## Current persistence slice
+### Persistence backend
 
-The active branch introduces persistence without exposing an HTTP API yet.
+Merged into `dev`:
 
-Schema:
+- activities, original GPX metadata/storage and normalized track points;
+- transactional `ImportGpxActivity`;
+- per-user SHA-256 duplicate detection;
+- persistence feature coverage.
 
-- `activities`: activity identity and computed aggregate statistics;
-- `activity_files`: immutable original GPX metadata, private-storage path and SHA-256;
-- `activity_track_points`: normalized points preserving segment/order and supported source metrics.
+## Current authentication slice
 
-Import flow:
+The active branch implements the anonymous device identity model from ADR 0004.
 
-1. calculate SHA-256 and reject an existing `(user_id, sha256)`;
-2. parse GPX and calculate statistics;
-3. write the original GPX to the private `local` disk;
-4. transactionally create the activity, file metadata and normalized track points;
-5. batch-insert track points;
-6. delete a newly written file when database persistence fails.
+First device:
 
-The database also enforces a unique `(user_id, sha256)` constraint to protect against concurrent duplicate imports.
+1. `POST /api/bootstrap`;
+2. create an internal anonymous `User`;
+3. issue a 256-bit random device credential;
+4. return plaintext once;
+5. store only SHA-256 in `device_tokens`.
 
-The same GPX may belong to different users.
+Protected API requests use:
 
-Deleting an Activity cascades database rows through foreign keys. Physical source-file deletion is intentionally not hidden in Eloquent model events; it will be handled by an explicit application use case when activity deletion is implemented.
+```http
+Authorization: Bearer <device-token>
+```
+
+`AuthenticateDeviceToken` resolves the owning user, rejects revoked credentials and periodically updates `last_used_at`.
+
+Additional devices:
+
+1. an authenticated device calls `POST /api/pairings`;
+2. a separate random pairing credential is issued with a 2-minute expiry;
+3. the returned pairing URL keeps the secret in the URL fragment: `/pair#token=...`;
+4. the new device calls `POST /api/pairings/redeem`;
+5. redemption is transactionally locked and single-use;
+6. a new independent device credential is issued for the same user.
+
+Public bootstrap/redeem endpoints and authenticated pairing issuance are rate limited.
+
+The current Laravel user table still contains the framework-default required name/email/password columns. Anonymous bootstrap fills them with non-user-facing technical random values for schema compatibility. They are not authentication credentials and are not exposed in the product. Removing those legacy fields may be done later as an isolated schema cleanup.
 
 ## Immediate next work
 
-1. Verify and merge the persistence backend.
-2. Implement anonymous users and per-device bearer authentication/pairing.
-3. Expose protected manual GPX import API using `ImportGpxActivity`.
-4. Add manual import UI.
+1. Verify and merge device authentication.
+2. Expose protected `POST /api/activities/import` using `ImportGpxActivity`.
+3. Add the frontend device-token bootstrap/storage/API client.
+4. Build manual GPX import UI.
 5. Add activity list/details API and UI.
 
 ## Current blockers

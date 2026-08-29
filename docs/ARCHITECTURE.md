@@ -31,12 +31,15 @@ The PWA Share Target is intentionally not the final persistence endpoint. Shared
 
 The MVP identity is anonymous but server-backed.
 
-- an anonymous `User` represents the owner's data;
-- each device receives its own high-entropy bearer credential;
-- only a hash of a bearer token should be persisted server-side;
-- adding another device uses a separate one-time short-lived pairing credential;
-- redeeming pairing creates a new device credential for the same user;
-- device credentials can later be revoked independently.
+`device_tokens` contains one independent credential record per device. The client receives a 256-bit random bearer token once; only its SHA-256 hash is stored. Active protected API calls are authenticated by `AuthenticateDeviceToken`, which resolves the owning `User`, rejects revoked tokens and records coarse `last_used_at` activity.
+
+First-use bootstrap is intentionally public and narrow: `POST /api/bootstrap` creates an internal anonymous user plus its first device token. Public credential endpoints are rate limited.
+
+`pairing_tokens` is a separate credential class. An authenticated device can issue a token that expires after two minutes. Pairing URLs use `/pair#token=...` so the secret fragment is not included in the HTTP request URL. Redeeming the pairing token is transactionally locked, marks it used and creates a new independent device token for the same user.
+
+Device and pairing credentials are never interchangeable. Only hashes are persisted.
+
+The current framework-default user schema still requires name/email/password. Bootstrap populates non-user-facing technical values solely for schema compatibility; those fields are not product authentication credentials.
 
 The frontend may keep its device credential in browser storage for the MVP. This makes XSS prevention, CSP and dependency hygiene part of the security boundary.
 

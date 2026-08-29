@@ -38,10 +38,12 @@ Use Laravel migrations. Do not manually mutate shared schemas.
 
 ## API/security
 
-- keep public bootstrap/pairing surfaces intentionally narrow;
-- all user data endpoints must resolve the authenticated anonymous user;
+- keep public bootstrap/pairing surfaces intentionally narrow and rate limited;
+- all user data endpoints must use the `device.auth` middleware and resolve the anonymous user from its Bearer credential;
+- device token plaintext is returned only on issuance; persist only SHA-256 hashes;
 - device tokens are credentials, not user identifiers;
-- one-time pairing tokens must expire and be single-use;
+- pairing tokens are a separate credential type, expire after two minutes and are single-use;
+- pairing links keep the secret in the URL fragment rather than the query string;
 - shared GPX ingestion must not bypass normal authenticated persistence API;
 - validate XML/file boundaries defensively.
 
