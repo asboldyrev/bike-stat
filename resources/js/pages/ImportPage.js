@@ -52,7 +52,18 @@ export const ImportPage = {
                     accept: '.gpx,application/gpx+xml,application/xml,text/xml',
                     disabled: state.value === 'loading',
                     onChange: (event) => {
-                        selectedFile.value = event.target.files?.[0] ?? null;
+                        const file = event.target.files?.[0] ?? null;
+
+                        if (file && file.size > 10 * 1024 * 1024) {
+                            selectedFile.value = null;
+                            state.value = 'error';
+                            message.value = 'GPX-файл не должен быть больше 10 МиБ.';
+                            activity.value = null;
+                            event.target.value = '';
+                            return;
+                        }
+
+                        selectedFile.value = file;
                         state.value = 'idle';
                         message.value = '';
                         activity.value = null;
