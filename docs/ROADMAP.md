@@ -14,7 +14,7 @@ Status: completed.
 
 ## 1. GPX domain
 
-Status: active.
+Status: completed.
 
 - validate GPX safely;
 - parse tracks/segments/points;
