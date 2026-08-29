@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'bike-stat-shell-v1';
-const APP_SHELL_CACHE = CACHE_VERSION;
+const VERSION = new URL(self.location.href).searchParams.get('v') || 'development';
+const APP_SHELL_CACHE = `bike-stat-shell-${VERSION}`;
 const APP_SHELL_URLS = [
     '/',
     '/manifest.webmanifest',
@@ -41,8 +41,7 @@ self.addEventListener('install', (event) => {
 
             await cache.addAll([...assets]);
         } catch {
-            // During local Vite development /build/manifest.json may not exist.
-            // The service worker baseline is aimed at production builds.
+            // Local Vite development may not expose a production build manifest.
         }
     })());
 });
