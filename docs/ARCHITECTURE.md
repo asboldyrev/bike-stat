@@ -86,8 +86,17 @@ Current boundaries:
 - `TrackPoint`, `TrackSegment` and `ParsedGpx` are persistence-independent domain objects;
 - common track-point extensions are read by XML local-name so namespace prefixes do not become application contracts;
 - `DistanceCalculator` uses the Haversine model;
-- `ActivityStatisticsCalculator` derives baseline distance/time/speed/elevation statistics from parsed segments;
-- source-provided measurements may also be preserved on `TrackPoint` for comparison/calibration rather than silently overriding calculated values.
+- `ActivityStatisticsCalculator` derives statistics from parsed segments;
+- source-provided measurements are preserved on `TrackPoint` and may take precedence when a track provides a complete, internally consistent source telemetry set.
+
+When every track point provides monotonic cumulative source distance and source speed, Bike Stat treats those values as device telemetry:
+
+- total distance = final cumulative source distance;
+- moving time = sum of per-`trkseg` time spans;
+- max speed = maximum source speed;
+- average speed = source distance / source moving time.
+
+This avoids one-second GPS-coordinate spikes producing implausible cycling peak speeds. If complete/monotonic source telemetry is unavailable, Bike Stat falls back to Haversine distance and the existing movement-threshold calculation.
 
 A representative SuperCycle export uses GPX 1.1 plus Garmin TrackPointExtension v2. In addition to cadence it provides cumulative `distance`, point `speed` and `course`. These are currently preserved as `sourceDistanceMeters`, `sourceSpeedMetersPerSecond` and `courseDegrees`.
 
@@ -123,6 +132,8 @@ Authenticated activity reads are owner-scoped at query time.
 - the current detail representation includes original-file metadata plus normalized track points for the upcoming map/chart layer.
 
 The Vue routes `/activities` and `/activities/:id` consume this boundary. Activity persistence remains server-authoritative; the frontend does not reconstruct statistics from raw GPX.
+
+Because original GPX files are preserved, `RecalculateActivityStatistics` and the `activities:recalculate` Artisan command can refresh persisted aggregate metrics when statistic algorithms improve without reimporting or duplicating the ride.
 
 ## Future/considered
 
