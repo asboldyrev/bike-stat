@@ -5,6 +5,6 @@ export const primaryNavigation = [
     { name: 'settings', label: 'Настройки', path: '/settings' },
 ];
 
-export function shouldSkipAutomaticBootstrap(pathname, hash) {
-    return pathname === '/pair' && String(hash ?? '').includes('token=');
+export function shouldSkipAutomaticBootstrap(pathname) {
+    return pathname === '/pair';
 }
