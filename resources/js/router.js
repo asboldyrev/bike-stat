@@ -1,5 +1,7 @@
 import { h } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { ActivitiesPage } from './pages/ActivitiesPage.js';
+import { ActivityPage } from './pages/ActivityPage.js';
 import { ImportPage } from './pages/ImportPage.js';
 import { routeDefinitions } from './routes.js';
 
@@ -15,7 +17,8 @@ const page = (title, description) => ({
 
 const components = {
     dashboard: page('Bike Stat', 'Персональная статистика велопоездок.'),
-    activities: page('Поездки', 'Здесь появится история импортированных поездок.'),
+    activities: ActivitiesPage,
+    activity: ActivityPage,
     import: ImportPage,
 };
 

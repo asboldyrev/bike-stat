@@ -26,7 +26,7 @@ Status: completed.
 
 ## 2. Persistence and manual import
 
-Status: active.
+Status: completed.
 
 - [x] activities;
 - [x] original activity files with SHA-256;
@@ -38,12 +38,12 @@ Status: active.
 
 ## 3. Activity UI
 
-Status: planned.
+Status: active.
 
-- activities list;
-- activity details;
-- basic metrics;
-- robust loading/error/duplicate states.
+- [x] activities list;
+- [x] activity details;
+- [x] basic metrics;
+- [x] robust loading/error/empty states.
 
 ## 4. Map and charts
 
