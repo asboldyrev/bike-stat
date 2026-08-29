@@ -130,7 +130,7 @@ final class ActivityStatisticsCalculator
                 : max($maxSpeed, $point->sourceSpeedMetersPerSecond);
         }
 
-        if ($lastDistance === null || $maxSpeed === null) {
+        if ($lastDistance === null || $maxSpeed === null || $maxSpeed <= 0.0) {
             return null;
         }
 
