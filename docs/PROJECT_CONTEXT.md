@@ -29,7 +29,9 @@ Current baseline:
 - shadcn-vue;
 - Vite;
 - PHPUnit for backend tests;
-- Vitest/Vue Test Utils for frontend tests.
+- Node's built-in test runner for the initial dependency-free frontend smoke baseline.
+
+A richer component/regression layer such as Vitest + Vue Test Utils may be introduced when frontend behavior becomes substantial enough to justify the additional dependencies.
 
 The project is a modular monolith unless an accepted ADR changes this.
 
