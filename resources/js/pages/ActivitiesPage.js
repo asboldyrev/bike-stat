@@ -1,6 +1,11 @@
-import { h, onMounted, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { h, ref, watch } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { apiRequest } from '../api.js';
+import {
+    activityPageFromQuery,
+    activityRoute,
+    activitiesRoute,
+} from '../activityPagination.js';
 
 function formatDistance(meters) {
     return `${(Number(meters) / 1000).toFixed(2)} км`;
@@ -34,6 +39,8 @@ function formatDate(value) {
 
 export const ActivitiesPage = {
     setup() {
+        const route = useRoute();
+        const router = useRouter();
         const state = ref('loading');
         const activities = ref([]);
         const message = ref('');
@@ -79,10 +86,21 @@ export const ActivitiesPage = {
                 return;
             }
 
-            load(page, { scroll: true });
+            router.push(activitiesRoute(page));
         }
 
-        onMounted(() => load());
+        watch(
+            () => route.query.page,
+            (pageValue, previousValue) => {
+                const page = activityPageFromQuery(pageValue);
+                const previousPage = activityPageFromQuery(previousValue);
+
+                load(page, {
+                    scroll: previousValue !== undefined && page !== previousPage,
+                });
+            },
+            { immediate: true },
+        );
 
         return () => h('section', { class: 'space-y-5 sm:space-y-6' }, [
             h('div', { class: 'flex items-start justify-between gap-3 sm:items-center sm:gap-4' }, [
@@ -110,7 +128,7 @@ export const ActivitiesPage = {
             state.value === 'ready' && activities.value.length > 0
                 ? h('div', { class: 'space-y-3' }, activities.value.map((activity) =>
                     h(RouterLink, {
-                        to: `/activities/${activity.id}`,
+                        to: activityRoute(activity.id, meta.value.current_page),
                         class: 'block rounded-xl border bg-white p-4 shadow-sm transition hover:border-slate-400 sm:p-5',
                     }, () => [
                         h('div', { class: 'flex flex-wrap items-start justify-between gap-3' }, [
