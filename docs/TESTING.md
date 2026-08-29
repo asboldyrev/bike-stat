@@ -14,7 +14,7 @@ php artisan test
 
 ## Frontend
 
-The foundation uses Node's built-in test runner for dependency-free frontend smoke coverage under `tests/frontend`.
+Frontend tests currently use Node's built-in test runner for dependency-free route, device-bootstrap and API-client regression coverage under `tests/frontend`.
 
 Run:
 
