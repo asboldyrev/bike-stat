@@ -4,56 +4,40 @@ Last updated: 2026-08-29
 
 ## Active roadmap stage
 
-GPX domain — real-file calibration.
+GPX domain — elevation calibration.
 
-## Completed foundation
+## Completed GPX domain
 
-The project foundation is merged into `dev`:
+Merged into `dev`:
 
-- repository documentation/source-of-truth structure;
-- Vue/Pinia/Router application shell;
-- frontend smoke-test baseline;
-- backend/frontend CI quality gate;
-- initial architecture ADRs.
+- defensive GPX parsing and domain values;
+- Haversine distance/time/speed baseline;
+- SuperCycle 3.4.4 compatibility;
+- preservation of SuperCycle source distance, speed, cadence and course for comparison/calibration.
 
-## Completed GPX-domain baseline
+## Current elevation slice
 
-The initial GPX domain is merged into `dev`:
+The raw consecutive-elevation algorithm was rejected after calibration against a representative real SuperCycle ride because stationary/low-speed altitude noise accumulated into implausible gain/loss.
 
-- immutable track point/segment/parsed-GPX domain objects;
-- defensive GPX XML parsing;
-- standard latitude/longitude/elevation/time parsing;
-- common HR/cadence/power/temperature extension extraction;
-- Haversine distance calculation;
-- elapsed/moving time, average/max speed and raw elevation metrics;
-- deterministic fixtures and unit/regression tests.
+The current branch introduces a dedicated `ElevationCalculator`:
 
-## Real SuperCycle calibration
+1. median-filter elevations within each GPX segment using a 5-point window;
+2. determine horizontal movement from source cumulative distance when available, otherwise Haversine;
+3. ignore elevation changes where horizontal movement is zero;
+4. ignore adjacent changes that imply absolute grade above 40%;
+5. accumulate gain/loss from the remaining filtered profile;
+6. report min/max from the filtered elevation profile.
 
-A representative SuperCycle 3.4.4 GPX export has been inspected.
+Both median window and maximum grade are constructor parameters so later calibration does not require rewriting the algorithm.
 
-Observed characteristics:
-
-- GPX 1.1 with Garmin TrackPointExtension v2 namespace;
-- track type `Biking`;
-- many track segments, including very short segments;
-- approximately one-second point sampling while recording;
-- SuperCycle writes cumulative `distance` directly under point `extensions`;
-- TrackPointExtension contains `cad`, `speed` and `course`;
-- the inspected ride did not contain heart-rate, power or temperature fields;
-- source distance is monotonic across segment boundaries in the inspected file.
-
-The parser now preserves SuperCycle source distance, source speed and course on each track point. These values are diagnostic/source measurements for now; they do not silently replace independently calculated statistics.
-
-Raw consecutive elevation accumulation is not suitable for the inspected real file: GPS elevation noise produces an implausibly high accumulated gain/loss. Elevation filtering/calibration is therefore required before elevation gain is treated as production-quality.
+On the representative real SuperCycle ride this materially reduces raw accumulated elevation noise, but no claim is made that the resulting number matches Strava or a DEM-corrected service. More representative rides should be compared before these defaults are considered final.
 
 ## Immediate next work
 
-1. Verify and merge the SuperCycle compatibility slice.
-2. Define and test calibrated elevation gain/loss behavior against real ride data.
-3. Add persistence, original-file storage and duplicate detection.
-4. Implement anonymous device authentication before exposing protected user-data APIs.
-5. Add the authenticated manual-import API/UI.
+1. Verify and merge the elevation-filter slice.
+2. Move to persistence: activities, original GPX file metadata/storage, normalized track points and per-user SHA-256 duplicate detection.
+3. Implement anonymous device authentication before protected user-data APIs are exposed.
+4. Add authenticated manual GPX import API/UI.
 
 ## Current blockers
 
