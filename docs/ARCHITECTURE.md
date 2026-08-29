@@ -76,7 +76,9 @@ A representative SuperCycle export uses GPX 1.1 plus Garmin TrackPointExtension 
 
 DTD/entity declarations are rejected and XML loading uses `LIBXML_NONET`.
 
-The current moving-speed threshold is 1.0 m/s. Current elevation gain/loss is raw consecutive-point accumulation and is expected to gain an explicit filtering/smoothing policy after calibration against real GPX data.
+The current moving-speed threshold is 1.0 m/s.
+
+Elevation statistics are delegated to `ElevationCalculator`. Its current calibration applies a 5-point median filter per GPX segment, ignores elevation changes with no horizontal movement, and rejects adjacent changes implying absolute grade above 40%. SuperCycle cumulative source distance is preferred for this plausibility check when present; generic GPX falls back to Haversine distance. Filter parameters are explicit constructor values and remain subject to calibration against additional representative rides.
 
 ## GPX data ownership
 
